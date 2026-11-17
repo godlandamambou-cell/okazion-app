@@ -39,9 +39,10 @@
     </script>
 
     <style>
-        /* Styles personnalisés complémentaires pour animations et barres de défilement */
-        body {
+        /* Styles personnalisés complémentaires pour animations et prévention débordement mobile */
+        html, body {
             font-family: 'Inter', sans-serif;
+            max-width: 100%;
             overflow-x: hidden;
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -75,20 +76,20 @@
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 pb-20 md:pb-0">
+<body class="bg-gray-100 text-gray-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 pb-24 md:pb-0">
 
     <!-- SYSTÈME DE NOTIFICATIONS TOAST (Remplace alert()) -->
-    <div id="toast-container" class="fixed bottom-20 md:bottom-6 right-4 z-[9999] flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-20 md:bottom-6 left-4 right-4 sm:left-auto sm:right-4 z-[9999] flex flex-col gap-2 sm:max-w-sm pointer-events-none"></div>
 
     <!-- HEADER PRINCIPAL STICKY STYLE AMAZON -->
-    <header class="sticky top-0 z-50 bg-[#131921] text-white shadow-lg">
-        <div class="max-w-[1500px] mx-auto px-3 py-2.5 flex flex-wrap md:flex-nowrap items-center justify-between gap-3">
+    <header class="sticky top-0 z-50 bg-[#131921] text-white shadow-lg w-full">
+        <div class="max-w-[1500px] mx-auto px-2.5 sm:px-3 py-2.5 flex flex-wrap md:flex-nowrap items-center justify-between gap-2 sm:gap-3">
             
             <!-- Logo & Sélecteur de localisation rapide -->
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 sm:gap-4 min-w-0 shrink-0">
                 <a onclick="switchView('home')" class="cursor-pointer flex items-center gap-1.5 group">
-                    <div class="bg-[#ff9900] text-[#131921] font-extrabold text-xl px-2 py-0.5 rounded-md transform group-hover:scale-105 transition">O</div>
-                    <span class="text-2xl font-extrabold tracking-tight text-white">okazion<span class="text-[#ff9900] text-sm font-bold">.store</span></span>
+                    <div class="bg-[#ff9900] text-[#131921] font-extrabold text-lg sm:text-xl px-2 py-0.5 rounded-md transform group-hover:scale-105 transition">O</div>
+                    <span class="text-lg sm:text-2xl font-extrabold tracking-tight text-white">okazion<span class="text-[#ff9900] text-xs sm:text-sm font-bold">.store</span></span>
                 </a>
 
                 <div onclick="document.getElementById('filter-city').focus(); switchView('home');" class="hidden xl:flex items-center gap-1.5 text-xs cursor-pointer hover:outline outline-1 outline-white p-1.5 rounded">
@@ -100,9 +101,9 @@
                 </div>
             </div>
 
-            <!-- Barre de Recherche Universelle -->
-            <div class="order-3 md:order-2 w-full md:flex-1 max-w-3xl flex rounded-lg overflow-hidden ring-2 ring-transparent focus-within:ring-[#ff9900] bg-white">
-                <select id="header-search-cat" onchange="applyAllFilters()" class="bg-gray-100 text-gray-800 text-xs sm:text-sm px-2.5 py-2.5 border-r border-gray-300 outline-none cursor-pointer font-medium max-w-[120px] sm:max-w-[160px]">
+            <!-- Barre de Recherche Universelle (Adaptée petits écrans < 400px) -->
+            <div class="order-3 md:order-2 w-full md:flex-1 max-w-3xl flex rounded-lg overflow-hidden ring-2 ring-transparent focus-within:ring-[#ff9900] bg-white min-w-0">
+                <select id="header-search-cat" onchange="applyAllFilters()" class="bg-gray-100 text-gray-800 text-xs sm:text-sm px-2 sm:px-2.5 py-2.5 border-r border-gray-300 outline-none cursor-pointer font-medium max-w-[95px] sm:max-w-[160px] shrink-0">
                     <option value="">Tous rayons</option>
                     <option value="High-Tech">High-Tech</option>
                     <option value="Mode">Mode & Mariage</option>
@@ -110,19 +111,19 @@
                     <option value="Maison">Maison & Jardin</option>
                     <option value="Santé">Santé & Pharma</option>
                 </select>
-                <input type="text" id="search-input" oninput="applyAllFilters()" placeholder="Rechercher un produit, une location, une boutique..." class="flex-1 px-3 py-2 text-sm text-gray-900 outline-none">
-                <button onclick="applyAllFilters()" class="bg-[#ff9900] hover:bg-[#e88b00] text-[#131921] px-4 sm:px-5 font-bold transition flex items-center justify-center">
+                <input type="text" id="search-input" oninput="applyAllFilters()" placeholder="Rechercher un produit, une location..." class="flex-1 min-w-0 px-2.5 sm:px-3 py-2 text-sm text-gray-900 outline-none">
+                <button onclick="applyAllFilters()" class="bg-[#ff9900] hover:bg-[#e88b00] text-[#131921] px-3.5 sm:px-5 font-bold transition flex items-center justify-center shrink-0">
                     <i class="fa-solid fa-magnifying-glass text-base"></i>
                 </button>
             </div>
 
             <!-- Actions Droite : Multi-devises, Compte, Live Pro, Messages, Panier -->
-            <div class="order-2 md:order-3 flex items-center gap-2 sm:gap-4">
+            <div class="order-2 md:order-3 flex items-center gap-1.5 sm:gap-4 shrink-0">
                 
                 <!-- Sélecteur Multi-Devises Temps Réel -->
-                <div class="flex items-center bg-[#232f3e] border border-gray-600 rounded-md px-2 py-1">
-                    <i class="fa-solid fa-coins text-[#ff9900] text-xs mr-1.5"></i>
-                    <select id="currency-selector" onchange="changeCurrency(this.value)" class="bg-transparent text-white text-xs font-bold outline-none cursor-pointer">
+                <div class="flex items-center bg-[#232f3e] border border-gray-600 rounded-md px-1.5 sm:px-2 py-1">
+                    <i class="fa-solid fa-coins text-[#ff9900] text-xs mr-1 sm:mr-1.5"></i>
+                    <select id="currency-selector" onchange="changeCurrency(this.value)" class="bg-transparent text-white text-[11px] sm:text-xs font-bold outline-none cursor-pointer">
                         <option value="EUR" class="bg-[#131921]">EUR (€)</option>
                         <option value="USD" class="bg-[#131921]">USD ($)</option>
                         <option value="CDF" class="bg-[#131921]">CDF (FC)</option>
@@ -149,10 +150,10 @@
                 </div>
 
                 <!-- Panier -->
-                <div onclick="switchView('cart')" class="flex items-center gap-1.5 cursor-pointer hover:outline outline-1 outline-white p-1.5 rounded relative">
+                <div onclick="switchView('cart')" class="flex items-center gap-1.5 cursor-pointer hover:outline outline-1 outline-white p-1 sm:p-1.5 rounded relative">
                     <div class="relative">
-                        <i class="fa-solid fa-cart-shopping text-2xl text-white"></i>
-                        <span id="cart-count" class="absolute -top-2 -right-2 bg-[#ff9900] text-[#131921] font-extrabold text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                        <i class="fa-solid fa-cart-shopping text-xl sm:text-2xl text-white"></i>
+                        <span id="cart-count" class="absolute -top-2 -right-2 bg-[#ff9900] text-[#131921] font-extrabold text-[11px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">0</span>
                     </div>
                     <b class="hidden xl:inline text-sm mt-2">Panier</b>
                 </div>
@@ -160,9 +161,9 @@
         </div>
 
         <!-- Barre de Navigation Secondaire -->
-        <nav class="bg-[#232f3e] text-white text-xs sm:text-sm px-3 py-2 border-t border-gray-700">
-            <div class="max-w-[1500px] mx-auto flex items-center justify-between gap-4 overflow-x-auto no-scrollbar">
-                <div class="flex items-center gap-4 sm:gap-5 whitespace-nowrap">
+        <nav class="bg-[#232f3e] text-white text-xs sm:text-sm px-2.5 sm:px-3 py-2 border-t border-gray-700">
+            <div class="max-w-[1500px] mx-auto flex items-center justify-between gap-3 sm:gap-4 overflow-x-auto no-scrollbar">
+                <div class="flex items-center gap-3.5 sm:gap-5 whitespace-nowrap">
                     <button onclick="switchView('home')" class="hover:text-[#ff9900] font-semibold flex items-center gap-1.5 transition">
                         <i class="fa-solid fa-bars"></i> Tout le catalogue
                     </button>
@@ -184,7 +185,7 @@
                 </div>
 
                 <!-- Bouton Thème Clair / Sombre -->
-                <button onclick="toggleTheme()" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-md text-xs font-medium whitespace-nowrap transition">
+                <button onclick="toggleTheme()" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-md text-xs font-medium whitespace-nowrap transition shrink-0">
                     <i id="theme-icon" class="fa-solid fa-moon text-[#ff9900]"></i>
                     <span id="theme-label" class="hidden sm:inline">Mode Sombre</span>
                 </button>
@@ -194,30 +195,31 @@
 
     <!-- BARRE DE NAVIGATION MOBILE INFÉRIEURE -->
     <nav class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#131921] text-white border-t border-gray-800 flex justify-around py-2 px-1 shadow-2xl">
-        <button onclick="switchView('home')" class="mobile-nav-btn flex flex-col items-center text-[11px] text-[#ff9900]" data-target="home">
+        <button onclick="switchView('home')" class="mobile-nav-btn flex flex-col items-center text-[11px] text-[#ff9900] py-0.5 px-2" data-target="home">
             <i class="fa-solid fa-house text-lg mb-0.5"></i>
             <span>Accueil</span>
         </button>
-        <button onclick="switchView('live-explore')" class="mobile-nav-btn flex flex-col items-center text-[11px] text-gray-300" data-target="live-explore">
+        <button onclick="switchView('live-explore')" class="mobile-nav-btn flex flex-col items-center text-[11px] text-gray-300 py-0.5 px-2" data-target="live-explore">
             <i class="fa-solid fa-video text-lg mb-0.5"></i>
             <span>Live Pro</span>
         </button>
-        <button onclick="switchView('add-product')" class="mobile-nav-btn flex flex-col items-center text-[11px] text-gray-300" data-target="add-product">
+        <button onclick="switchView('add-product')" class="mobile-nav-btn flex flex-col items-center text-[11px] text-gray-300 py-0.5 px-2" data-target="add-product">
             <i class="fa-solid fa-circle-plus text-lg mb-0.5 text-[#ff9900]"></i>
             <span>Vendre</span>
         </button>
-        <button onclick="switchView('messages')" class="mobile-nav-btn flex flex-col items-center text-[11px] text-gray-300 relative" data-target="messages">
+        <button onclick="switchView('messages')" class="mobile-nav-btn flex flex-col items-center text-[11px] text-gray-300 relative py-0.5 px-2" data-target="messages">
             <i class="fa-solid fa-comments text-lg mb-0.5"></i>
             <span>Messages</span>
+            <span id="mobile-unread-msg-badge" class="absolute top-0 right-1 bg-emerald-500 text-white text-[9px] font-bold px-1 rounded-full">2</span>
         </button>
-        <button onclick="checkAuthHeader()" class="mobile-nav-btn flex flex-col items-center text-[11px] text-gray-300" data-target="profile">
+        <button onclick="checkAuthHeader()" class="mobile-nav-btn flex flex-col items-center text-[11px] text-gray-300 py-0.5 px-2" data-target="profile">
             <i class="fa-solid fa-user text-lg mb-0.5"></i>
             <span>Compte</span>
         </button>
     </nav>
 
     <!-- CONTENEUR PRINCIPAL DES VUES -->
-    <main class="max-w-[1500px] mx-auto px-3 sm:px-6 py-5">
+    <main class="max-w-[1500px] mx-auto px-3 sm:px-6 py-4 sm:py-5 w-full overflow-x-hidden">
 
         <!-- =========================================================
              1. VUE ACCUEIL (HOME) : HERO, FILTRES AVANCÉS & GRILLE PRODUITS
@@ -225,36 +227,36 @@
         <section id="view-home" class="app-view block space-y-6">
             
             <!-- Hero Banner Moderne -->
-            <div class="relative rounded-2xl overflow-hidden shadow-md bg-gradient-to-r from-[#131921] via-[#232f3e] to-[#007185] text-white p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div class="max-w-xl space-y-3 z-10">
-                    <div class="inline-flex items-center gap-2 bg-[#ff9900]/20 border border-[#ff9900] text-[#ff9900] text-xs font-bold px-3 py-1 rounded-full">
+            <div class="relative rounded-2xl overflow-hidden shadow-md bg-gradient-to-r from-[#131921] via-[#232f3e] to-[#007185] text-white p-5 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="max-w-xl space-y-3 z-10 w-full">
+                    <div class="inline-flex items-center gap-2 bg-[#ff9900]/20 border border-[#ff9900] text-[#ff9900] text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full">
                         <i class="fa-solid fa-bolt"></i> Marketplace Hybride : Achat, Location & Live Shopping
                     </div>
-                    <h1 class="text-2xl sm:text-4xl font-extrabold leading-tight">
+                    <h1 class="text-xl sm:text-4xl font-extrabold leading-tight">
                         Achetez, Louez et Enchérissez en Direct sur <span class="text-[#ff9900]">Okazion</span>
                     </h1>
-                    <p class="text-sm sm:text-base text-gray-200">
+                    <p class="text-xs sm:text-base text-gray-200">
                         Des milliers d'offres vérifiées à Kinshasa, Paris et à l'international. Paiement sécurisé Mobile Money, Carte Bancaire ou à la livraison.
                     </p>
-                    <div class="pt-2 flex flex-wrap gap-3">
-                        <button onclick="switchView('live-explore')" class="bg-[#ff9900] hover:bg-[#e88b00] text-[#131921] font-bold px-5 py-2.5 rounded-lg text-sm shadow transition flex items-center gap-2">
+                    <div class="pt-2 flex flex-wrap gap-2.5 sm:gap-3">
+                        <button onclick="switchView('live-explore')" class="bg-[#ff9900] hover:bg-[#e88b00] text-[#131921] font-bold px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm shadow transition flex items-center gap-2">
                             <i class="fa-solid fa-play"></i> Voir les Enchères Live
                         </button>
-                        <button onclick="switchView('add-product')" class="bg-white/15 hover:bg-white/25 text-white font-semibold px-5 py-2.5 rounded-lg text-sm backdrop-blur transition">
+                        <button onclick="switchView('add-product')" class="bg-white/15 hover:bg-white/25 text-white font-semibold px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm backdrop-blur transition">
                             Publier une annonce gratuite
                         </button>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3 w-full md:w-auto z-10">
-                    <div onclick="quickFilterOffer('Location')" class="cursor-pointer bg-white/10 hover:bg-white/20 backdrop-blur p-4 rounded-xl border border-white/15 transition">
-                        <i class="fa-solid fa-key text-[#ff9900] text-xl mb-2"></i>
-                        <div class="font-bold text-sm">Locations Pro</div>
-                        <div class="text-xs text-gray-300">Véhicules, Robes, Matériel</div>
+                    <div onclick="quickFilterOffer('Location')" class="cursor-pointer bg-white/10 hover:bg-white/20 backdrop-blur p-3.5 sm:p-4 rounded-xl border border-white/15 transition">
+                        <i class="fa-solid fa-key text-[#ff9900] text-lg sm:text-xl mb-1.5 sm:mb-2"></i>
+                        <div class="font-bold text-xs sm:text-sm">Locations Pro</div>
+                        <div class="text-[11px] sm:text-xs text-gray-300">Véhicules, Robes, Matériel</div>
                     </div>
-                    <div onclick="quickFilterOffer('Achat')" class="cursor-pointer bg-white/10 hover:bg-white/20 backdrop-blur p-4 rounded-xl border border-white/15 transition">
-                        <i class="fa-solid fa-bag-shopping text-emerald-400 text-xl mb-2"></i>
-                        <div class="font-bold text-sm">Achat Immédiat</div>
-                        <div class="text-xs text-gray-300">Livraison express 24h</div>
+                    <div onclick="quickFilterOffer('Achat')" class="cursor-pointer bg-white/10 hover:bg-white/20 backdrop-blur p-3.5 sm:p-4 rounded-xl border border-white/15 transition">
+                        <i class="fa-solid fa-bag-shopping text-emerald-400 text-lg sm:text-xl mb-1.5 sm:mb-2"></i>
+                        <div class="font-bold text-xs sm:text-sm">Achat Immédiat</div>
+                        <div class="text-[11px] sm:text-xs text-gray-300">Livraison express 24h</div>
                     </div>
                 </div>
             </div>
@@ -320,12 +322,12 @@
             <!-- Grille des Produits -->
             <div>
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg sm:text-xl font-extrabold flex items-center gap-2">
+                    <h2 class="text-base sm:text-xl font-extrabold flex items-center gap-2">
                         Annonces & Offres Vérifiées
                         <span id="results-counter" class="text-xs font-semibold bg-gray-200 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">0 résultats</span>
                     </h2>
                 </div>
-                <div id="home-product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+                <div id="home-product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5"></div>
             </div>
         </section>
 
@@ -336,33 +338,33 @@
             <button onclick="switchView('home')" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-[#ff9900]">
                 <i class="fa-solid fa-arrow-left"></i> Retour aux résultats
             </button>
-            <div id="product-detail-container" class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-8 shadow-sm border border-gray-200 dark:border-slate-800"></div>
+            <div id="product-detail-container" class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-8 shadow-sm border border-gray-200 dark:border-slate-800"></div>
         </section>
 
         <!-- =========================================================
              3. LIVE PRO & ENCHÈRES TEMPS RÉEL (STYLE EBAY LIVE)
              ========================================================= -->
         <section id="view-live-explore" class="app-view hidden space-y-6">
-            <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-slate-800">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-slate-800">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                     <div>
                         <div class="inline-flex items-center gap-2 text-red-600 font-bold text-xs uppercase tracking-wider mb-1">
                             <span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-live"></span> Diffusion Temps Réel
                         </div>
-                        <h2 class="text-2xl font-extrabold">Okazion Live Pro & Enchères Express</h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Assistez aux démonstrations des vendeurs et remportez des lots exclusifs aux enchères.</p>
+                        <h2 class="text-xl sm:text-2xl font-extrabold">Okazion Live Pro & Enchères Express</h2>
+                        <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Assistez aux démonstrations des vendeurs et remportez des lots exclusifs aux enchères.</p>
                     </div>
-                    <button onclick="switchView('seller-live-studio')" class="bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-3 rounded-xl shadow flex items-center gap-2 transition self-start">
+                    <button onclick="switchView('seller-live-studio')" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 sm:px-5 py-3 rounded-xl shadow flex items-center gap-2 transition self-start text-xs sm:text-sm">
                         <i class="fa-solid fa-video"></i> Lancer mon Direct Vendeur
                     </button>
                 </div>
-                <div id="live-streams-gallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <div id="live-streams-gallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"></div>
             </div>
         </section>
 
         <!-- SALLE D'ENCHÈRES EN DIRECT -->
         <section id="view-live-room" class="app-view hidden space-y-4">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-wrap items-center justify-between gap-2">
                 <button onclick="leaveLiveRoom()" class="inline-flex items-center gap-2 text-sm font-semibold hover:text-[#ff9900]">
                     <i class="fa-solid fa-arrow-left"></i> Quitter le direct
                 </button>
@@ -373,47 +375,47 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 <!-- Flux Vidéo & Panneau d'Enchères -->
-                <div class="lg:col-span-2 bg-black rounded-2xl overflow-hidden flex flex-col justify-between min-h-[520px] relative border border-gray-800 shadow-xl">
+                <div class="lg:col-span-2 bg-black rounded-2xl overflow-hidden flex flex-col justify-between min-h-[440px] sm:min-h-[520px] relative border border-gray-800 shadow-xl">
                     <img id="live-room-bg" src="" class="absolute inset-0 w-full h-full object-cover opacity-55">
-                    <div class="relative z-10 p-4 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent">
-                        <div>
+                    <div class="relative z-10 p-4 flex justify-between items-start gap-2 bg-gradient-to-b from-black/80 to-transparent">
+                        <div class="min-w-0">
                             <span class="bg-red-600 text-white text-xs font-extrabold px-2.5 py-1 rounded uppercase">EN DIRECT</span>
-                            <h2 id="room-live-title" class="text-white font-bold text-lg sm:text-xl mt-2">Titre du Live</h2>
+                            <h2 id="room-live-title" class="text-white font-bold text-base sm:text-xl mt-2">Titre du Live</h2>
                             <p id="room-live-seller" class="text-gray-300 text-xs">Par Boutique Officielle</p>
                         </div>
-                        <div class="bg-black/70 backdrop-blur border border-white/20 px-4 py-2 rounded-xl text-center">
+                        <div class="bg-black/70 backdrop-blur border border-white/20 px-3 sm:px-4 py-2 rounded-xl text-center shrink-0">
                             <span class="text-[11px] text-gray-300 block">Fin du lot</span>
-                            <span id="auction-timer-display" class="text-xl font-mono font-extrabold text-[#ff9900]">00:45</span>
+                            <span id="auction-timer-display" class="text-lg sm:text-xl font-mono font-extrabold text-[#ff9900]">00:45</span>
                         </div>
                     </div>
 
                     <!-- Carte Produit Épinglé & Enchères -->
                     <div class="relative z-10 p-4 sm:p-6 bg-gradient-to-t from-black via-black/90 to-transparent text-white space-y-4">
-                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <div class="flex items-center gap-3">
-                                <img id="live-featured-img" src="" class="w-16 h-16 rounded-lg object-cover bg-white">
-                                <div>
+                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <img id="live-featured-img" src="" class="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover bg-white shrink-0">
+                                <div class="min-w-0">
                                     <span class="text-[10px] uppercase tracking-wider bg-[#ff9900] text-black font-extrabold px-2 py-0.5 rounded">Lot aux enchères</span>
-                                    <h3 id="live-featured-title" class="font-bold text-sm sm:text-base mt-1">Article Vedette</h3>
+                                    <h3 id="live-featured-title" class="font-bold text-sm sm:text-base mt-1 truncate">Article Vedette</h3>
                                     <div class="text-xs text-gray-300">Meilleur enchérisseur : <b id="live-highest-bidder" class="text-emerald-400">Sophie_M</b></div>
                                 </div>
                             </div>
-                            <div class="text-left sm:text-right">
+                            <div class="text-left sm:text-right shrink-0">
                                 <span class="text-xs text-gray-300 block">Enchère actuelle</span>
-                                <span id="live-current-bid" class="text-2xl font-extrabold text-[#ff9900]">120,00 €</span>
+                                <span id="live-current-bid" class="text-xl sm:text-2xl font-extrabold text-[#ff9900]">120,00 €</span>
                             </div>
                         </div>
 
                         <!-- Boutons d'Enchère et Achat Immédiat -->
                         <div class="flex flex-wrap items-center gap-2">
-                            <button onclick="placeLiveBid(10)" class="flex-1 bg-[#ff9900] hover:bg-[#e88b00] text-black font-extrabold py-3 px-4 rounded-xl text-sm transition shadow-lg">
+                            <button onclick="placeLiveBid(10)" class="flex-1 bg-[#ff9900] hover:bg-[#e88b00] text-black font-extrabold py-3 px-4 rounded-xl text-xs sm:text-sm transition shadow-lg">
                                 <i class="fa-solid fa-gavel"></i> Enchérir (+10 €)
                             </button>
                             <div class="flex items-center bg-white/15 rounded-xl overflow-hidden border border-white/20">
-                                <input type="number" id="custom-bid-input" placeholder="Offre (€)" class="w-24 px-3 py-3 bg-transparent text-white text-sm outline-none">
+                                <input type="number" id="custom-bid-input" placeholder="Offre (€)" class="w-20 sm:w-24 px-2.5 sm:px-3 py-3 bg-transparent text-white text-sm outline-none">
                                 <button onclick="placeCustomBid()" class="bg-white/20 hover:bg-white/30 px-3 py-3 text-xs font-bold">Miser</button>
                             </div>
-                            <button onclick="buyLiveProductNow()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition">
+                            <button onclick="buyLiveProductNow()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm transition">
                                 <i class="fa-solid fa-bolt"></i> Achat Immédiat
                             </button>
                         </div>
@@ -421,15 +423,15 @@
                 </div>
 
                 <!-- Chat en Direct Modéré -->
-                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 flex flex-col h-[520px] overflow-hidden shadow-sm">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 flex flex-col h-[420px] sm:h-[520px] overflow-hidden shadow-sm">
                     <div class="p-4 border-b border-gray-200 dark:border-slate-800 font-bold text-sm flex items-center justify-between">
                         <span><i class="fa-solid fa-comments text-[#ff9900]"></i> Chat en Direct</span>
                         <span class="text-[11px] text-emerald-600 font-medium"><i class="fa-solid fa-shield"></i> Modéré</span>
                     </div>
                     <div id="live-room-chat-box" class="flex-1 p-4 overflow-y-auto space-y-2.5 text-xs sm:text-sm"></div>
                     <div class="p-3 border-t border-gray-200 dark:border-slate-800 flex gap-2">
-                        <input type="text" id="live-room-input" onkeypress="if(event.key==='Enter') sendRoomLiveMsg()" placeholder="Poser une question au vendeur..." class="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 outline-none">
-                        <button onclick="sendRoomLiveMsg()" class="bg-[#131921] dark:bg-[#ff9900] text-white dark:text-black font-bold px-4 rounded-lg text-sm">
+                        <input type="text" id="live-room-input" onkeypress="if(event.key==='Enter') sendRoomLiveMsg()" placeholder="Poser une question au vendeur..." class="flex-1 min-w-0 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 outline-none">
+                        <button onclick="sendRoomLiveMsg()" class="bg-[#131921] dark:bg-[#ff9900] text-white dark:text-black font-bold px-4 rounded-lg text-sm shrink-0">
                             <i class="fa-solid fa-paper-plane"></i>
                         </button>
                     </div>
@@ -442,8 +444,8 @@
             <button onclick="stopSellerStream(); switchView('seller-dashboard')" class="inline-flex items-center gap-2 text-sm font-semibold hover:text-[#ff9900]">
                 <i class="fa-solid fa-arrow-left"></i> Retour au Tableau de Bord
             </button>
-            <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-slate-800">
-                <h2 class="text-xl font-extrabold mb-1"><i class="fa-solid fa-tower-broadcast text-red-600"></i> Studio de Diffusion Live Pro (WebRTC)</h2>
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-slate-800">
+                <h2 class="text-lg sm:text-xl font-extrabold mb-1"><i class="fa-solid fa-tower-broadcast text-red-600"></i> Studio de Diffusion Live Pro (WebRTC)</h2>
                 <p class="text-xs text-gray-500 mb-6">Configurez votre flux vidéo en direct et sélectionnez l'article à mettre aux enchères.</p>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -456,17 +458,17 @@
                             <label class="block text-xs font-bold mb-1">Article mis en avant / Enchère</label>
                             <select id="studio-live-product" class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 outline-none"></select>
                         </div>
-                        <div class="flex gap-3 pt-2">
-                            <button id="btn-start-webrtc" onclick="startSellerStream()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow transition">
+                        <div class="flex flex-wrap gap-3 pt-2">
+                            <button id="btn-start-webrtc" onclick="startSellerStream()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl shadow transition text-xs sm:text-sm">
                                 <i class="fa-solid fa-video"></i> Activer Caméra & Diffuser
                             </button>
-                            <button id="btn-stop-webrtc" onclick="stopSellerStream()" class="hidden bg-gray-700 hover:bg-gray-800 text-white font-bold px-5 py-3 rounded-xl transition">
+                            <button id="btn-stop-webrtc" onclick="stopSellerStream()" class="hidden bg-gray-700 hover:bg-gray-800 text-white font-bold px-5 py-3 rounded-xl transition text-xs sm:text-sm">
                                 Arrêter
                             </button>
                         </div>
                     </div>
 
-                    <div class="bg-black rounded-2xl overflow-hidden relative h-72 flex flex-col items-center justify-center text-white border border-gray-800">
+                    <div class="bg-black rounded-2xl overflow-hidden relative h-64 sm:h-72 flex flex-col items-center justify-center text-white border border-gray-800">
                         <video id="webrtc-preview-video" autoplay muted playsinline class="hidden w-full h-full object-cover"></video>
                         <div id="webrtc-fallback-placeholder" class="text-center p-6">
                             <i class="fa-solid fa-camera text-4xl text-gray-500 mb-3"></i>
@@ -483,26 +485,26 @@
              4. PANIER & TUNNEL DE COMMANDE COMPLET (CHECKOUT)
              ========================================================= -->
         <section id="view-cart" class="app-view hidden space-y-6">
-            <h2 class="text-2xl font-extrabold flex items-center gap-2">
+            <h2 class="text-xl sm:text-2xl font-extrabold flex items-center gap-2">
                 <i class="fa-solid fa-cart-shopping text-[#ff9900]"></i> Votre Panier Okazion
             </h2>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Liste des articles -->
-                <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-sm border border-gray-200 dark:border-slate-800">
+                <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-slate-800">
                     <div id="cart-items-container" class="divide-y divide-gray-200 dark:divide-slate-800"></div>
                 </div>
 
                 <!-- Récapitulatif, Code Promo & Paiement -->
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-sm border border-gray-200 dark:border-slate-800 space-y-5 h-fit">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-slate-800 space-y-5 h-fit">
                     <h3 class="font-bold text-lg border-b border-gray-200 dark:border-slate-800 pb-3">Récapitulatif & Paiement</h3>
 
                     <!-- Code Promo -->
                     <div>
                         <label class="block text-xs font-bold mb-1">Code Promotionnel (ex: PROMO10, BIENVENUE)</label>
                         <div class="flex gap-2">
-                            <input type="text" id="checkout-promo-input" placeholder="Entrez votre code" class="flex-1 px-3 py-2 text-sm uppercase rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 outline-none">
-                            <button onclick="applyPromoCode()" class="bg-[#232f3e] text-white font-bold px-4 py-2 rounded-lg text-xs hover:bg-black transition">Appliquer</button>
+                            <input type="text" id="checkout-promo-input" placeholder="Entrez votre code" class="flex-1 min-w-0 px-3 py-2 text-sm uppercase rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 outline-none">
+                            <button onclick="applyPromoCode()" class="bg-[#232f3e] text-white font-bold px-4 py-2 rounded-lg text-xs hover:bg-black transition shrink-0">Appliquer</button>
                         </div>
                         <p id="promo-feedback-msg" class="text-xs mt-1 font-medium"></p>
                     </div>
@@ -564,7 +566,7 @@
              5. MES ACHATS & SUIVI DE COMMANDE EN TEMPS RÉEL
              ========================================================= -->
         <section id="view-my-orders" class="app-view hidden space-y-6">
-            <h2 class="text-2xl font-extrabold flex items-center gap-2">
+            <h2 class="text-xl sm:text-2xl font-extrabold flex items-center gap-2">
                 <i class="fa-solid fa-box-open text-[#ff9900]"></i> Mes Achats & Suivi de Livraison
             </h2>
             <div id="orders-container" class="space-y-4"></div>
@@ -574,11 +576,11 @@
              6. MESSAGERIE MULTIMÉDIA AVANCÉE (AGORA CHAT SDK PRO)
              ========================================================= -->
         <section id="view-messages" class="app-view hidden">
-            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden grid grid-cols-1 md:grid-cols-3 h-[680px]">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden grid grid-cols-1 md:grid-cols-3 h-[calc(100vh-175px)] min-h-[500px] md:h-[680px]">
                 
                 <!-- Liste des contacts & Présence -->
-                <div class="border-r border-gray-200 dark:border-slate-800 flex flex-col h-full">
-                    <div class="p-4 bg-[#232f3e] text-white font-bold flex items-center justify-between">
+                <div id="chat-sidebar-panel" class="border-r border-gray-200 dark:border-slate-800 flex flex-col h-full min-h-0">
+                    <div class="p-3.5 sm:p-4 bg-[#232f3e] text-white font-bold flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-comments text-[#ff9900]"></i>
                             <span>Discussions Agora</span>
@@ -614,17 +616,20 @@
                 </div>
 
                 <!-- Fenêtre de discussion active -->
-                <div class="md:col-span-2 flex flex-col h-full bg-[#efeae2] dark:bg-slate-950 relative">
+                <div id="chat-thread-panel" class="hidden md:flex md:col-span-2 flex-col h-full min-h-0 bg-[#efeae2] dark:bg-slate-950 relative">
                     <!-- En-tête Contact avec Présence, Indicateur de Frappe, Push & Export -->
-                    <div class="p-3 bg-[#131921] text-white flex flex-wrap items-center justify-between gap-2">
-                        <div class="flex items-center gap-3">
-                            <div class="relative">
-                                <div id="chat-active-avatar" class="w-10 h-10 rounded-full bg-[#ff9900] text-[#131921] font-extrabold flex items-center justify-center">M</div>
+                    <div class="p-2.5 sm:p-3 bg-[#131921] text-white flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                            <button onclick="showMobileChatContacts()" class="md:hidden bg-white/10 hover:bg-white/20 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shrink-0">
+                                <i class="fa-solid fa-arrow-left"></i> Contacts
+                            </button>
+                            <div class="relative shrink-0">
+                                <div id="chat-active-avatar" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#ff9900] text-[#131921] font-extrabold flex items-center justify-center">M</div>
                                 <span id="chat-presence-dot" class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#131921]"></span>
                             </div>
-                            <div>
-                                <div id="chat-active-name" class="font-bold text-sm">Maison Mariage Paris</div>
-                                <div id="chat-presence-status" class="text-[11px] text-emerald-400 flex items-center gap-1.5">
+                            <div class="min-w-0">
+                                <div id="chat-active-name" class="font-bold text-xs sm:text-sm truncate">Maison Mariage Paris</div>
+                                <div id="chat-presence-status" class="text-[10px] sm:text-[11px] text-emerald-400 flex items-center gap-1.5 truncate">
                                     <span>En ligne • Vendeur Vérifié</span>
                                 </div>
                                 <div id="chat-typing-indicator" class="hidden text-[11px] text-[#ff9900] font-semibold flex items-center gap-1">
@@ -635,23 +640,23 @@
                         </div>
 
                         <!-- Actions avancées Agora : Push, Export Historique, Appel Vidéo -->
-                        <div class="flex items-center gap-1.5">
-                            <button onclick="toggleChatPushNotifications()" id="btn-chat-push" title="Activer/Désactiver les Notifications Push" class="bg-white/10 hover:bg-white/20 text-white px-2.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button onclick="toggleChatPushNotifications()" id="btn-chat-push" title="Activer/Désactiver les Notifications Push" class="bg-white/10 hover:bg-white/20 text-white px-2 sm:px-2.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
                                 <i class="fa-solid fa-bell text-[#ff9900]"></i>
                                 <span class="hidden lg:inline">Push Actif</span>
                             </button>
-                            <button onclick="exportChatHistory()" title="Exporter l'historique complet de la discussion (JSON/TXT)" class="bg-white/10 hover:bg-white/20 text-white px-2.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                            <button onclick="exportChatHistory()" title="Exporter l'historique complet de la discussion (JSON/TXT)" class="bg-white/10 hover:bg-white/20 text-white px-2 sm:px-2.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
                                 <i class="fa-solid fa-file-export text-cyan-400"></i>
                                 <span class="hidden lg:inline">Exporter</span>
                             </button>
-                            <button onclick="startVideoCall()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition">
+                            <button onclick="startVideoCall()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 sm:px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition">
                                 <i class="fa-solid fa-video"></i> <span class="hidden sm:inline">Appel Vidéo</span>
                             </button>
                         </div>
                     </div>
 
                     <!-- Fil des messages -->
-                    <div id="chat-messages-box" class="flex-1 p-4 overflow-y-auto space-y-3"></div>
+                    <div id="chat-messages-box" class="flex-1 p-3 sm:p-4 overflow-y-auto space-y-3"></div>
 
                     <!-- Sélecteur rapide d'Emojis -->
                     <div id="chat-emoji-picker" class="hidden bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 p-2.5 flex flex-wrap gap-2 text-lg shadow-inner">
@@ -669,32 +674,36 @@
                         <button type="button" onclick="insertChatEmoji('🤝')" class="hover:scale-125 transition">🤝</button>
                     </div>
 
-                    <!-- Barre d'envoi multimédia enrichie -->
-                    <div class="p-3 bg-[#232f3e] flex items-center gap-1.5 sm:gap-2">
-                        <button type="button" onclick="toggleEmojiPicker()" title="Insérer un Emoji" class="text-gray-300 hover:text-[#ff9900] p-1.5 transition">
-                            <i class="fa-regular fa-face-smile text-lg"></i>
-                        </button>
-                        <label title="Envoyer une photo (avec miniature générée automatiquement)" class="cursor-pointer text-gray-300 hover:text-[#ff9900] p-1.5">
-                            <i class="fa-solid fa-image text-lg"></i>
-                            <input type="file" accept="image/*" class="hidden" onchange="sendChatMedia('image', event)">
-                        </label>
-                        <label title="Envoyer une vidéo (avec miniature)" class="cursor-pointer text-gray-300 hover:text-[#ff9900] p-1.5">
-                            <i class="fa-solid fa-film text-lg"></i>
-                            <input type="file" accept="video/*" class="hidden" onchange="sendChatMedia('video', event)">
-                        </label>
-                        <button type="button" onclick="sendGpsLocationMessage()" title="Partager ma position GPS exacte" class="text-gray-300 hover:text-cyan-400 p-1.5 transition">
-                            <i class="fa-solid fa-location-dot text-lg"></i>
-                        </button>
-                        <button type="button" onclick="sendStructuredProductCard()" title="Envoyer une fiche produit structurée / offre" class="text-gray-300 hover:text-amber-400 p-1.5 transition">
-                            <i class="fa-solid fa-box-archive text-lg"></i>
-                        </button>
-                        <button id="voice-record-btn" onclick="toggleVoiceNote()" title="Enregistrer un message vocal" class="text-gray-300 hover:text-red-400 p-1.5 transition">
-                            <i class="fa-solid fa-microphone text-lg"></i>
-                        </button>
-                        <input type="text" id="chat-text-input" oninput="handleChatTypingSignal()" onkeypress="if(event.key==='Enter') sendChatText()" placeholder="Écrivez votre message..." class="flex-1 px-4 py-2 text-sm rounded-full bg-white dark:bg-slate-800 text-gray-900 dark:text-white outline-none">
-                        <button onclick="sendChatText()" class="bg-[#25d366] hover:bg-emerald-500 text-white w-10 h-10 rounded-full flex items-center justify-center shadow transition shrink-0">
-                            <i class="fa-solid fa-paper-plane"></i>
-                        </button>
+                    <!-- Barre d'envoi multimédia enrichie (Adaptée écrans mobiles compacts) -->
+                    <div class="p-2 sm:p-3 bg-[#232f3e] flex flex-wrap sm:flex-nowrap items-center gap-1 sm:gap-2">
+                        <div class="flex items-center gap-0.5 sm:gap-1 shrink-0">
+                            <button type="button" onclick="toggleEmojiPicker()" title="Insérer un Emoji" class="text-gray-300 hover:text-[#ff9900] p-1 sm:p-1.5 transition">
+                                <i class="fa-regular fa-face-smile text-base sm:text-lg"></i>
+                            </button>
+                            <label title="Envoyer une photo (avec miniature générée automatiquement)" class="cursor-pointer text-gray-300 hover:text-[#ff9900] p-1 sm:p-1.5">
+                                <i class="fa-solid fa-image text-base sm:text-lg"></i>
+                                <input type="file" accept="image/*" class="hidden" onchange="sendChatMedia('image', event)">
+                            </label>
+                            <label title="Envoyer une vidéo (avec miniature)" class="cursor-pointer text-gray-300 hover:text-[#ff9900] p-1 sm:p-1.5">
+                                <i class="fa-solid fa-film text-base sm:text-lg"></i>
+                                <input type="file" accept="video/*" class="hidden" onchange="sendChatMedia('video', event)">
+                            </label>
+                            <button type="button" onclick="sendGpsLocationMessage()" title="Partager ma position GPS exacte" class="text-gray-300 hover:text-cyan-400 p-1 sm:p-1.5 transition">
+                                <i class="fa-solid fa-location-dot text-base sm:text-lg"></i>
+                            </button>
+                            <button type="button" onclick="sendStructuredProductCard()" title="Envoyer une fiche produit structurée / offre" class="text-gray-300 hover:text-amber-400 p-1 sm:p-1.5 transition">
+                                <i class="fa-solid fa-box-archive text-base sm:text-lg"></i>
+                            </button>
+                            <button id="voice-record-btn" onclick="toggleVoiceNote()" title="Enregistrer un message vocal" class="text-gray-300 hover:text-red-400 p-1 sm:p-1.5 transition">
+                                <i class="fa-solid fa-microphone text-base sm:text-lg"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-1 min-w-0 w-full sm:w-auto">
+                            <input type="text" id="chat-text-input" oninput="handleChatTypingSignal()" onkeypress="if(event.key==='Enter') sendChatText()" placeholder="Écrivez votre message..." class="flex-1 min-w-0 px-3.5 sm:px-4 py-2 text-sm rounded-full bg-white dark:bg-slate-800 text-gray-900 dark:text-white outline-none">
+                            <button onclick="sendChatText()" class="bg-[#25d366] hover:bg-emerald-500 text-white w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shadow transition shrink-0">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -728,7 +737,7 @@
         <section id="view-seller-dashboard" class="app-view hidden space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-2xl font-extrabold">Tableau de Bord Vendeur Pro</h2>
+                    <h2 class="text-xl sm:text-2xl font-extrabold">Tableau de Bord Vendeur Pro</h2>
                     <p class="text-xs text-gray-500">Gérez votre catalogue, vos promotions et vos diffusions en direct.</p>
                 </div>
                 <div class="flex flex-wrap gap-2">
@@ -742,38 +751,38 @@
             </div>
 
             <!-- Création de Codes Promo Vendeur -->
-            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-sm border border-gray-200 dark:border-slate-800">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-slate-800">
                 <h3 class="font-bold text-base mb-3"><i class="fa-solid fa-tags text-[#ff9900]"></i> Générateur de Codes Promotionnels</h3>
-                <div class="flex flex-wrap items-center gap-3">
-                    <input type="text" id="new-promo-code" placeholder="Code (ex: KINSHASA20)" class="px-3 py-2 text-sm uppercase rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 outline-none">
-                    <input type="number" id="new-promo-discount" placeholder="Réduction (%)" min="1" max="90" class="w-36 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 outline-none">
-                    <button onclick="createPromoCode()" class="bg-[#232f3e] text-white font-bold px-5 py-2 rounded-lg text-sm hover:bg-black transition">Activer le Code</button>
+                <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                    <input type="text" id="new-promo-code" placeholder="Code (ex: KINSHASA20)" class="flex-1 sm:flex-initial min-w-[140px] px-3 py-2 text-sm uppercase rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 outline-none">
+                    <input type="number" id="new-promo-discount" placeholder="Réduction (%)" min="1" max="90" class="w-32 sm:w-36 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 outline-none">
+                    <button onclick="createPromoCode()" class="w-full sm:w-auto bg-[#232f3e] text-white font-bold px-5 py-2 rounded-lg text-sm hover:bg-black transition">Activer le Code</button>
                 </div>
                 <div id="active-promos-badges" class="flex flex-wrap gap-2 mt-3"></div>
             </div>
 
             <!-- Tableau des Annonces du Vendeur -->
             <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left border-collapse min-w-[600px]">
                     <thead>
                         <tr class="bg-gray-50 dark:bg-slate-800/60 border-b border-gray-200 dark:border-slate-800 text-xs uppercase text-gray-500">
-                            <th class="p-4">Article</th>
-                            <th class="p-4">Prix</th>
-                            <th class="p-4">Mode / Ville</th>
-                            <th class="p-4">Visibilité</th>
-                            <th class="p-4 text-right">Actions</th>
+                            <th class="p-3 sm:p-4">Article</th>
+                            <th class="p-3 sm:p-4">Prix</th>
+                            <th class="p-3 sm:p-4">Mode / Ville</th>
+                            <th class="p-3 sm:p-4">Visibilité</th>
+                            <th class="p-3 sm:p-4 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="seller-listings-table" class="divide-y divide-gray-100 dark:divide-slate-800 text-sm"></tbody>
+                    <tbody id="seller-listings-table" class="divide-y divide-gray-100 dark:divide-slate-800 text-xs sm:text-sm"></tbody>
                 </table>
             </div>
         </section>
 
         <!-- PUBLICATION D'UNE NOUVELLE ANNONCE -->
         <section id="view-add-product" class="app-view hidden">
-            <div class="max-w-2xl mx-auto bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200 dark:border-slate-800 space-y-5">
+            <div class="max-w-2xl mx-auto bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-8 shadow-sm border border-gray-200 dark:border-slate-800 space-y-5">
                 <div class="flex items-center justify-between border-b border-gray-200 dark:border-slate-800 pb-4">
-                    <h2 class="text-xl font-extrabold">Publier une Annonce ou Location</h2>
+                    <h2 class="text-lg sm:text-xl font-extrabold">Publier une Annonce ou Location</h2>
                     <button onclick="switchView('home')" class="text-xs text-gray-500 hover:underline">Annuler</button>
                 </div>
 
@@ -848,7 +857,7 @@
                         <textarea id="new-desc" rows="3" placeholder="Décrivez les caractéristiques, garanties, conditions de location..." class="w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 outline-none"></textarea>
                     </div>
 
-                    <button onclick="publishProduct()" class="w-full bg-[#ff9900] hover:bg-[#e88b00] text-[#131921] font-extrabold py-3.5 rounded-xl shadow transition">
+                    <button id="btn-publish-product" onclick="publishProduct()" class="w-full bg-[#ff9900] hover:bg-[#e88b00] text-[#131921] font-extrabold py-3.5 rounded-xl shadow transition">
                         Publier l'annonce sur Okazion
                     </button>
                 </div>
@@ -861,17 +870,17 @@
                 <i class="fa-solid fa-arrow-left"></i> Retour au catalogue général
             </button>
             <div class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-gray-200 dark:border-slate-800">
-                <div class="bg-gradient-to-r from-[#131921] to-[#007185] text-white p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="bg-gradient-to-r from-[#131921] to-[#007185] text-white p-5 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <span class="bg-emerald-500 text-white text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full">Boutique Officielle Certifiée</span>
-                        <h1 id="storefront-title" class="text-2xl sm:text-3xl font-extrabold mt-2">Maison Mariage Paris</h1>
+                        <h1 id="storefront-title" class="text-xl sm:text-3xl font-extrabold mt-2">Maison Mariage Paris</h1>
                         <p class="text-xs sm:text-sm text-gray-200 mt-1">⭐ 4.9/5 (312 avis clients) • Réponse moyenne en moins de 15 min</p>
                     </div>
                     <button onclick="openChatWithSeller(document.getElementById('storefront-title').innerText)" class="bg-[#ff9900] text-[#131921] font-bold px-5 py-2.5 rounded-xl text-sm self-start">
                         <i class="fa-solid fa-comments"></i> Contacter la boutique
                     </button>
                 </div>
-                <div id="store-products-grid" class="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+                <div id="store-products-grid" class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
             </div>
         </section>
 
@@ -879,14 +888,14 @@
              8. FAVORIS, AUTHENTIFICATION (2FA) & PANEL SUPER ADMIN
              ========================================================= -->
         <section id="view-favorites" class="app-view hidden space-y-6">
-            <h2 class="text-2xl font-extrabold"><i class="fa-solid fa-heart text-red-500"></i> Mes Articles Favoris</h2>
+            <h2 class="text-xl sm:text-2xl font-extrabold"><i class="fa-solid fa-heart text-red-500"></i> Mes Articles Favoris</h2>
             <div id="favorites-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
         </section>
 
         <!-- CONNEXION -->
         <section id="view-login" class="app-view hidden">
-            <div class="max-w-md mx-auto bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200 dark:border-slate-800 space-y-4">
-                <h2 class="text-2xl font-extrabold text-center">Connexion à Okazion</h2>
+            <div class="max-w-md mx-auto bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-8 shadow-sm border border-gray-200 dark:border-slate-800 space-y-4">
+                <h2 class="text-xl sm:text-2xl font-extrabold text-center">Connexion à Okazion</h2>
                 <div>
                     <label class="block text-xs font-bold mb-1">Adresse e-mail</label>
                     <input type="email" id="login-email" placeholder="exemple@mail.com" class="w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 outline-none">
@@ -912,9 +921,9 @@
 
         <!-- INSCRIPTION ACHETEUR 2FA -->
         <section id="view-signup-buyer" class="app-view hidden">
-            <div class="max-w-lg mx-auto bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200 dark:border-slate-800 space-y-4">
-                <h2 class="text-xl font-extrabold">Inscription Acheteur & Vérification 2FA</h2>
-                <div class="grid grid-cols-2 gap-3">
+            <div class="max-w-lg mx-auto bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-8 shadow-sm border border-gray-200 dark:border-slate-800 space-y-4">
+                <h2 class="text-lg sm:text-xl font-extrabold">Inscription Acheteur & Vérification 2FA</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold mb-1">Prénom</label>
                         <input type="text" id="buyer-firstname" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
@@ -927,16 +936,16 @@
                 <div>
                     <label class="block text-xs font-bold mb-1">E-mail (Vérification 2FA requise)</label>
                     <div class="flex gap-2">
-                        <input type="email" id="buyer-email" placeholder="client@mail.com" class="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
-                        <button onclick="sendAuthCode('buyer')" class="bg-[#232f3e] text-white text-xs font-bold px-3 rounded-lg">Envoyer Code</button>
+                        <input type="email" id="buyer-email" placeholder="client@mail.com" class="flex-1 min-w-0 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
+                        <button onclick="sendAuthCode('buyer')" class="bg-[#232f3e] text-white text-xs font-bold px-3 rounded-lg shrink-0">Envoyer Code</button>
                     </div>
                     <p id="buyer-email-auth-status" class="text-xs mt-1 text-emerald-600 font-semibold"></p>
                 </div>
                 <div id="buyer-code-auth-group" class="hidden">
                     <label class="block text-xs font-bold mb-1">Code reçu (Code démo : 1234)</label>
                     <div class="flex gap-2">
-                        <input type="text" id="buyer-auth-code" placeholder="1234" class="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
-                        <button onclick="verifyEmailCode('buyer')" class="bg-emerald-600 text-white text-xs font-bold px-4 rounded-lg">Valider</button>
+                        <input type="text" id="buyer-auth-code" placeholder="1234" class="flex-1 min-w-0 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
+                        <button onclick="verifyEmailCode('buyer')" class="bg-emerald-600 text-white text-xs font-bold px-4 rounded-lg shrink-0">Valider</button>
                     </div>
                 </div>
                 <div>
@@ -949,8 +958,8 @@
 
         <!-- INSCRIPTION VENDEUR PRO RCCM 2FA -->
         <section id="view-signup-seller" class="app-view hidden">
-            <div class="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200 dark:border-slate-800 space-y-4">
-                <h2 class="text-xl font-extrabold">Inscription Boutique Vendeur Pro (RCCM & 2FA)</h2>
+            <div class="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-8 shadow-sm border border-gray-200 dark:border-slate-800 space-y-4">
+                <h2 class="text-lg sm:text-xl font-extrabold">Inscription Boutique Vendeur Pro (RCCM & 2FA)</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold mb-1">Nom de la Boutique *</label>
@@ -974,16 +983,16 @@
                 <div>
                     <label class="block text-xs font-bold mb-1">E-mail Professionnel (2FA)</label>
                     <div class="flex gap-2">
-                        <input type="email" id="seller-email" placeholder="contact@boutique.cd" class="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
-                        <button onclick="sendAuthCode('seller')" class="bg-[#232f3e] text-white text-xs font-bold px-3 rounded-lg">Envoyer Code</button>
+                        <input type="email" id="seller-email" placeholder="contact@boutique.cd" class="flex-1 min-w-0 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
+                        <button onclick="sendAuthCode('seller')" class="bg-[#232f3e] text-white text-xs font-bold px-3 rounded-lg shrink-0">Envoyer Code</button>
                     </div>
                     <p id="seller-email-auth-status" class="text-xs mt-1 text-emerald-600 font-semibold"></p>
                 </div>
                 <div id="seller-code-auth-group" class="hidden">
                     <label class="block text-xs font-bold mb-1">Code de sécurité (Code démo : 1234)</label>
                     <div class="flex gap-2">
-                        <input type="text" id="seller-auth-code" placeholder="1234" class="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
-                        <button onclick="verifyEmailCode('seller')" class="bg-emerald-600 text-white text-xs font-bold px-4 rounded-lg">Valider</button>
+                        <input type="text" id="seller-auth-code" placeholder="1234" class="flex-1 min-w-0 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
+                        <button onclick="verifyEmailCode('seller')" class="bg-emerald-600 text-white text-xs font-bold px-4 rounded-lg shrink-0">Valider</button>
                     </div>
                 </div>
                 <button onclick="handleSellerSignup()" class="w-full bg-[#ff9900] text-[#131921] font-extrabold py-3 rounded-xl">Ouvrir ma Boutique Pro</button>
@@ -992,7 +1001,7 @@
 
         <!-- PROFIL UTILISATEUR -->
         <section id="view-profile" class="app-view hidden">
-            <div class="max-w-lg mx-auto bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200 dark:border-slate-800 space-y-5">
+            <div class="max-w-lg mx-auto bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-8 shadow-sm border border-gray-200 dark:border-slate-800 space-y-5">
                 <h2 class="text-xl font-extrabold">Mon Espace Personnel</h2>
                 <div id="profile-info-details" class="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl text-sm space-y-2"></div>
                 <div class="flex gap-3">
@@ -1004,11 +1013,11 @@
 
         <!-- PANEL SUPER ADMIN -->
         <section id="view-admin-dashboard" class="app-view hidden space-y-6">
-            <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-slate-800">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-slate-800">
                 <div class="flex items-center justify-between mb-6">
                     <div>
                         <span class="bg-red-600 text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded uppercase">Contrôle Central</span>
-                        <h2 class="text-2xl font-extrabold mt-1">Panneau Super Administrateur Okazion</h2>
+                        <h2 class="text-xl sm:text-2xl font-extrabold mt-1">Panneau Super Administrateur Okazion</h2>
                     </div>
                 </div>
 
@@ -1040,7 +1049,7 @@
         <div onclick="window.scrollTo({top:0, behavior:'smooth'})" class="bg-[#232f3e] hover:bg-[#37475a] text-white text-center py-3 text-xs font-bold cursor-pointer transition">
             Retour en haut de page
         </div>
-        <div class="max-w-[1500px] mx-auto px-6 py-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-xs">
+        <div class="max-w-[1500px] mx-auto px-4 sm:px-6 py-8 sm:py-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 text-xs">
             <div>
                 <h4 class="text-white font-bold text-sm mb-3">À propos d'Okazion</h4>
                 <p class="leading-relaxed text-gray-400">La première marketplace hybride combinant e-commerce certifié, petites annonces locales et ventes aux enchères en direct.</p>
@@ -1068,7 +1077,7 @@
                 </ul>
             </div>
         </div>
-        <div class="border-t border-gray-800 py-5 text-center text-xs text-gray-400">
+        <div class="border-t border-gray-800 py-5 px-4 text-center text-xs text-gray-400">
             © 2026 Okazion (okazion.store) — Tous droits réservés • Propulsé par Cloud & Supabase
         </div>
     </footer>
@@ -1410,7 +1419,7 @@
                 toast.style.transform = 'translateY(10px)';
                 toast.style.transition = 'all 0.3s ease';
                 setTimeout(() => toast.remove(), 300);
-            }, 3500);
+            }, 4000);
         }
 
         function formatPrice(eurAmount) {
@@ -1455,6 +1464,27 @@
         /* ---------------------------------------------------------
            3. SYNCHRONISATION SUPABASE & NAVIGATION DES VUES
            --------------------------------------------------------- */
+        function normalizeSupabasePhotos(rawPhotos) {
+            const fallback = ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80'];
+            if (!rawPhotos) return fallback;
+            if (Array.isArray(rawPhotos)) {
+                return rawPhotos.length > 0 ? rawPhotos : fallback;
+            }
+            if (typeof rawPhotos === 'string') {
+                const trimmed = rawPhotos.trim();
+                if (!trimmed) return fallback;
+                try {
+                    const parsed = JSON.parse(trimmed);
+                    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                } catch (e) {
+                    if (trimmed.startsWith('http') || trimmed.startsWith('data:')) {
+                        return [trimmed];
+                    }
+                }
+            }
+            return fallback;
+        }
+
         async function syncWithSupabase() {
             if (!supabaseClient) return;
             try {
@@ -1463,32 +1493,45 @@
                     .select('*')
                     .order('created_at', { ascending: false });
 
-                if (!error && data && data.length > 0) {
-                    const existingIds = new Set(products.map(p => p.id));
+                if (error) {
+                    console.warn("Erreur lecture Supabase :", error.message);
+                    return;
+                }
+
+                if (data && data.length > 0) {
+                    const existingIds = new Set(products.map(p => String(p.id)));
+                    let addedCount = 0;
+
                     data.forEach(remoteItem => {
-                        if (!existingIds.has(remoteItem.id)) {
+                        if (!existingIds.has(String(remoteItem.id))) {
                             products.unshift({
                                 id: remoteItem.id,
-                                title: remoteItem.title,
+                                title: remoteItem.title || 'Annonce Okazion',
                                 price: Number(remoteItem.price) || 50,
                                 city: remoteItem.city || 'Kinshasa',
                                 category: remoteItem.category || 'High-Tech',
                                 type: remoteItem.type || 'Achat',
                                 condition: remoteItem.condition || 'Neuf',
                                 seller: remoteItem.seller || 'Vendeur Certifié',
-                                verified: true,
-                                rating: 4.8,
-                                photos: remoteItem.photos || ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80'],
+                                verified: remoteItem.verified !== undefined ? Boolean(remoteItem.verified) : true,
+                                boosted: Boolean(remoteItem.boosted),
+                                rating: Number(remoteItem.rating) || 4.8,
+                                photos: normalizeSupabasePhotos(remoteItem.photos),
+                                video_url: remoteItem.video_url || null,
                                 description: remoteItem.description || '',
                                 reviews: []
                             });
+                            addedCount++;
                         }
                     });
-                    saveAllToStorage();
-                    applyAllFilters();
+
+                    if (addedCount > 0) {
+                        saveAllToStorage();
+                        applyAllFilters();
+                    }
                 }
             } catch (e) {
-                console.warn("Synchronisation Supabase différée.");
+                console.warn("Synchronisation Supabase différée :", e);
             }
         }
 
@@ -1499,45 +1542,57 @@
         function initSupabaseRealtime() {
             if (!supabaseClient) return;
             
-            supabaseClient
-                .channel('public:annonces')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'annonces' }, (payload) => {
-                    console.log('Changement Realtime détecté sur les annonces :', payload);
-                    
-                    if (payload.eventType === 'INSERT') {
-                        const newItem = payload.new;
-                        if (!products.some(p => p.id === newItem.id)) {
-                            products.unshift({
-                                id: newItem.id,
-                                title: newItem.title,
-                                price: Number(newItem.price) || 50,
-                                city: newItem.city || 'Kinshasa',
-                                category: newItem.category || 'High-Tech',
-                                type: newItem.type || 'Achat',
-                                condition: newItem.condition || 'Neuf',
-                                seller: newItem.seller || 'Vendeur Certifié',
-                                verified: true,
-                                rating: 4.8,
-                                photos: newItem.photos || ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80'],
-                                description: newItem.description || '',
-                                reviews: []
-                            });
+            // Éviter les erreurs de WebSocket non autorisé dans les environnements sandboxed (Canvas / iFrame)
+            if (window.location && window.location.protocol === 'blob:') {
+                console.info('Mode Sandbox détecté : Realtime WebSocket désactivé pour éviter les erreurs de connexion.');
+                return;
+            }
+
+            try {
+                supabaseClient
+                    .channel('public:annonces')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'annonces' }, (payload) => {
+                        console.log('Changement Realtime détecté sur les annonces :', payload);
+                        
+                        if (payload.eventType === 'INSERT') {
+                            const newItem = payload.new;
+                            if (!products.some(p => String(p.id) === String(newItem.id))) {
+                                products.unshift({
+                                    id: newItem.id,
+                                    title: newItem.title,
+                                    price: Number(newItem.price) || 50,
+                                    city: newItem.city || 'Kinshasa',
+                                    category: newItem.category || 'High-Tech',
+                                    type: newItem.type || 'Achat',
+                                    condition: newItem.condition || 'Neuf',
+                                    seller: newItem.seller || 'Vendeur Certifié',
+                                    verified: newItem.verified !== undefined ? Boolean(newItem.verified) : true,
+                                    boosted: Boolean(newItem.boosted),
+                                    rating: Number(newItem.rating) || 4.8,
+                                    photos: normalizeSupabasePhotos(newItem.photos),
+                                    video_url: newItem.video_url || null,
+                                    description: newItem.description || '',
+                                    reviews: []
+                                });
+                                saveAllToStorage();
+                                applyAllFilters();
+                                showToast(`Nouvelle annonce en direct : ${newItem.title.substring(0, 25)}...`, 'info');
+                            }
+                        } else if (payload.eventType === 'DELETE') {
+                            const deletedId = payload.old.id;
+                            products = products.filter(p => String(p.id) !== String(deletedId));
                             saveAllToStorage();
                             applyAllFilters();
-                            showToast(`Nouvelle annonce en direct : ${newItem.title.substring(0, 25)}...`, 'info');
                         }
-                    } else if (payload.eventType === 'DELETE') {
-                        const deletedId = payload.old.id;
-                        products = products.filter(p => p.id !== deletedId);
-                        saveAllToStorage();
-                        applyAllFilters();
-                    }
-                })
-                .subscribe((status) => {
-                    if (status === 'SUBSCRIBED') {
-                        console.log('Canal Supabase Realtime actif et à l\'écoute mondiale !');
-                    }
-                });
+                    })
+                    .subscribe((status) => {
+                        if (status === 'SUBSCRIBED') {
+                            console.log('Canal Supabase Realtime actif et à l\'écoute mondiale !');
+                        }
+                    });
+            } catch (err) {
+                console.warn("Realtime non disponible dans cet environnement.");
+            }
         }
 
         let activeViewName = 'home';
@@ -1663,7 +1718,7 @@
                 const typeBadgeColor = p.type === 'Location' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300';
 
                 return `
-                <article onclick="openProductDetail(${p.id})" class="group bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-200 flex flex-col justify-between cursor-pointer relative">
+                <article onclick="openProductDetail(${p.id})" class="group bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-200 flex flex-col justify-between cursor-pointer relative min-w-0">
                     
                     <button onclick="event.stopPropagation(); toggleFavorite(${p.id})" title="Ajouter aux favoris" class="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/90 dark:bg-slate-800/90 shadow flex items-center justify-center hover:scale-110 transition">
                         <i class="fa-${isFav ? 'solid text-red-500' : 'regular text-gray-500'} fa-heart text-base"></i>
@@ -1681,8 +1736,8 @@
                     <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
                         <div>
                             <div class="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 mb-1">
-                                <span><i class="fa-solid fa-location-dot text-[#ff9900]"></i> ${p.city}</span>
-                                <span>${p.condition}</span>
+                                <span class="truncate"><i class="fa-solid fa-location-dot text-[#ff9900]"></i> ${p.city}</span>
+                                <span class="shrink-0 ml-1">${p.condition}</span>
                             </div>
 
                             <h3 class="font-bold text-sm text-gray-900 dark:text-white line-clamp-2 group-hover:text-[#007185] dark:group-hover:text-[#ff9900] transition">
@@ -1699,7 +1754,7 @@
                             <div class="text-lg font-extrabold text-[#b12704] dark:text-[#ff9900] mb-2">
                                 ${formatPrice(p.price)} ${p.type === 'Location' ? '<span class="text-xs font-normal text-gray-500">/ jour</span>' : ''}
                             </div>
-                            <button onclick="event.stopPropagation(); addToCart(${p.id})" class="w-full bg-[#ff9900] hover:bg-[#e88b00] text-[#131921] font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+                            <button onclick="event.stopPropagation(); addToCart(${p.id})" class="w-full bg-[#ff9900] hover:bg-[#e88b00] text-[#131921] font-bold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
                                 <i class="fa-solid fa-cart-plus"></i> Ajouter au panier
                             </button>
                         </div>
@@ -1737,7 +1792,7 @@
 
             const mainImg = (p.photos && p.photos[0]) || '';
             const thumbsHtml = (p.photos || []).map((src, idx) => `
-                <img src="${src}" onclick="document.getElementById('detail-main-img').src='${src}'" class="w-16 h-16 rounded-lg object-cover border-2 ${idx === 0 ? 'border-[#ff9900]' : 'border-transparent'} cursor-pointer hover:border-[#ff9900] bg-gray-100">
+                <img src="${src}" onclick="document.getElementById('detail-main-img').src='${src}'" class="w-16 h-16 rounded-lg object-cover border-2 ${idx === 0 ? 'border-[#ff9900]' : 'border-transparent'} cursor-pointer hover:border-[#ff9900] bg-gray-100 shrink-0">
             `).join('');
 
             const reviewsHtml = (p.reviews && p.reviews.length > 0)
@@ -1753,12 +1808,12 @@
                 : `<p class="text-xs text-gray-500">Aucun avis pour le moment. Soyez le premier à donner votre avis !</p>`;
 
             document.getElementById('product-detail-container').innerHTML = `
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
                     <div class="lg:col-span-5 space-y-3">
-                        <div class="h-80 sm:h-96 bg-gray-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center p-4 overflow-hidden border border-gray-100 dark:border-slate-800">
+                        <div class="h-64 sm:h-96 bg-gray-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center p-4 overflow-hidden border border-gray-100 dark:border-slate-800">
                             <img id="detail-main-img" src="${mainImg}" class="w-full h-full object-contain">
                         </div>
-                        <div class="flex gap-2 overflow-x-auto">${thumbsHtml}</div>
+                        <div class="flex gap-2 overflow-x-auto pb-1">${thumbsHtml}</div>
                         ${p.video_url ? `<video src="${p.video_url}" controls class="w-full rounded-xl mt-2 max-h-48 bg-black"></video>` : ''}
                     </div>
 
@@ -1769,9 +1824,9 @@
                             ${p.verified ? '<span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded"><i class="fa-solid fa-shield-check"></i> Vendeur Vérifié</span>' : ''}
                         </div>
 
-                        <h1 class="text-xl sm:text-2xl font-extrabold leading-snug">${p.title}</h1>
+                        <h1 class="text-lg sm:text-2xl font-extrabold leading-snug">${p.title}</h1>
 
-                        <div class="flex items-center gap-3 text-xs text-gray-500">
+                        <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-gray-500">
                             <span class="text-amber-500 font-bold text-sm">★ ${p.rating || 4.8} / 5</span>
                             <span>•</span>
                             <span><i class="fa-solid fa-location-dot text-[#ff9900]"></i> ${p.city}</span>
@@ -1779,7 +1834,7 @@
                             <span>État : <b>${p.condition}</b></span>
                         </div>
 
-                        <div class="text-3xl font-extrabold text-[#b12704] dark:text-[#ff9900] py-2 border-y border-gray-100 dark:border-slate-800">
+                        <div class="text-2xl sm:text-3xl font-extrabold text-[#b12704] dark:text-[#ff9900] py-2 border-y border-gray-100 dark:border-slate-800">
                             ${formatPrice(p.price)}
                         </div>
 
@@ -1794,21 +1849,21 @@
 
                             <div class="bg-gray-50 dark:bg-slate-800/40 p-3 rounded-xl space-y-2 border border-gray-200 dark:border-slate-700">
                                 <div class="text-xs font-bold">Laisser une évaluation</div>
-                                <div class="flex gap-2">
+                                <div class="flex flex-wrap sm:flex-nowrap gap-2">
                                     <select id="review-rating-select" class="px-2 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800">
                                         <option value="5">★★★★★ (5/5)</option>
                                         <option value="4">★★★★☆ (4/5)</option>
                                         <option value="3">★★★☆☆ (3/5)</option>
                                     </select>
-                                    <input type="text" id="review-comment-input" placeholder="Votre avis sur ce produit..." class="flex-1 px-3 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none">
-                                    <button onclick="submitProductReview(${p.id})" class="bg-[#232f3e] text-white text-xs font-bold px-3 py-1.5 rounded-lg">Publier</button>
+                                    <input type="text" id="review-comment-input" placeholder="Votre avis sur ce produit..." class="flex-1 min-w-0 px-3 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none">
+                                    <button onclick="submitProductReview(${p.id})" class="bg-[#232f3e] text-white text-xs font-bold px-3 py-1.5 rounded-lg shrink-0">Publier</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="lg:col-span-3">
-                        <div class="bg-gray-50 dark:bg-slate-800/70 rounded-2xl p-5 border border-gray-200 dark:border-slate-700 space-y-4">
+                        <div class="bg-gray-50 dark:bg-slate-800/70 rounded-2xl p-4 sm:p-5 border border-gray-200 dark:border-slate-700 space-y-4">
                             <div class="text-2xl font-extrabold text-[#b12704] dark:text-[#ff9900]">${formatPrice(p.price)}</div>
                             <div class="text-xs text-emerald-600 font-bold flex items-center gap-1.5">
                                 <i class="fa-solid fa-truck-fast"></i> En stock • Expédition rapide
@@ -1874,7 +1929,7 @@
         function renderLiveGallery() {
             const container = document.getElementById('live-streams-gallery');
             container.innerHTML = activeLiveStreams.map(stream => `
-                <div onclick="enterLiveRoom(${stream.id})" class="group relative h-80 rounded-2xl overflow-hidden bg-black cursor-pointer shadow-md hover:shadow-xl transition">
+                <div onclick="enterLiveRoom(${stream.id})" class="group relative h-72 sm:h-80 rounded-2xl overflow-hidden bg-black cursor-pointer shadow-md hover:shadow-xl transition">
                     <img src="${stream.bgImg}" class="w-full h-full object-cover opacity-75 group-hover:scale-105 transition-transform duration-500">
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
 
@@ -1889,7 +1944,7 @@
 
                     <div class="absolute bottom-0 left-0 right-0 p-4 text-white space-y-1">
                         <div class="text-xs font-bold text-[#ff9900]">Enchère en cours : ${formatPrice(stream.currentBid)}</div>
-                        <h3 class="font-bold text-base leading-snug line-clamp-2">${stream.title}</h3>
+                        <h3 class="font-bold text-sm sm:text-base leading-snug line-clamp-2">${stream.title}</h3>
                         <p class="text-xs text-gray-300"><i class="fa-solid fa-store"></i> ${stream.seller}</p>
                     </div>
                 </div>
@@ -2114,16 +2169,16 @@
 
             container.innerHTML = cart.map(item => `
                 <div class="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div class="flex items-center gap-4">
-                        <img src="${item.photo}" class="w-20 h-20 rounded-xl object-contain bg-gray-50 dark:bg-slate-800 p-1.5 border border-gray-100 dark:border-slate-700">
-                        <div>
+                    <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <img src="${item.photo}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-contain bg-gray-50 dark:bg-slate-800 p-1.5 border border-gray-100 dark:border-slate-700 shrink-0">
+                        <div class="min-w-0">
                             <h4 class="font-bold text-sm line-clamp-2">${item.title}</h4>
                             <span class="text-xs text-gray-500">Vendu par ${item.seller || 'Okazion'}</span>
                             <div class="font-extrabold text-[#b12704] dark:text-[#ff9900] text-sm mt-1">${formatPrice(item.price)}</div>
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-3 self-end sm:self-center">
+                    <div class="flex items-center gap-3 self-end sm:self-center shrink-0">
                         <div class="flex items-center border border-gray-300 dark:border-slate-700 rounded-lg overflow-hidden">
                             <button onclick="updateCartQty(${item.id}, -1)" class="px-3 py-1 bg-gray-100 dark:bg-slate-800 font-bold hover:bg-gray-200">-</button>
                             <span class="px-3 py-1 text-sm font-bold">${item.qty}</span>
@@ -2190,29 +2245,29 @@
                 const stepsHtml = steps.map((label, idx) => {
                     const active = idx <= order.statusStep;
                     return `
-                        <div class="flex-1 flex flex-col items-center text-center">
-                            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${active ? 'bg-emerald-600 text-white' : 'bg-gray-200 dark:bg-slate-800 text-gray-500'}">
+                        <div class="flex-1 flex flex-col items-center text-center px-1">
+                            <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold ${active ? 'bg-emerald-600 text-white' : 'bg-gray-200 dark:bg-slate-800 text-gray-500'}">
                                 ${active ? '<i class="fa-solid fa-check"></i>' : idx + 1}
                             </div>
-                            <span class="text-[11px] mt-1 font-semibold ${active ? 'text-emerald-600' : 'text-gray-400'}">${label}</span>
+                            <span class="text-[10px] sm:text-[11px] mt-1 font-semibold leading-tight ${active ? 'text-emerald-600' : 'text-gray-400'}">${label}</span>
                         </div>`;
                 }).join('');
 
                 return `
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-sm border border-gray-200 dark:border-slate-800 space-y-4">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-slate-800 space-y-4">
                     <div class="flex flex-wrap justify-between items-center gap-2 border-b border-gray-100 dark:border-slate-800 pb-3 text-xs">
                         <div>
                             <span class="text-gray-500">Commande N°</span> <b class="text-sm">${order.id}</b>
-                            <span class="mx-2 text-gray-300">|</span>
+                            <span class="mx-1.5 sm:mx-2 text-gray-300">|</span>
                             <span>Passée le ${order.date}</span>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <span class="bg-gray-100 dark:bg-slate-800 px-2.5 py-1 rounded font-medium">${order.payment}</span>
-                            <b class="text-base text-[#b12704] dark:text-[#ff9900]">${formatPrice(order.totalEur)}</b>
+                        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                            <span class="bg-gray-100 dark:bg-slate-800 px-2.5 py-1 rounded font-medium text-[11px] sm:text-xs">${order.payment}</span>
+                            <b class="text-sm sm:text-base text-[#b12704] dark:text-[#ff9900]">${formatPrice(order.totalEur)}</b>
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-between py-2">${stepsHtml}</div>
+                    <div class="flex items-start justify-between py-2">${stepsHtml}</div>
 
                     <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
                         ${order.items.map(i => `<div>• <b>${i.qty}x</b> ${i.title}</div>`).join('')}
@@ -2223,13 +2278,29 @@
 
         /* ---------------------------------------------------------
            8. MESSAGERIE MULTIMÉDIA APPROFONDIE (AGORA CHAT SDK)
-              - Emojis, GPS, Messages Structurés (Fiches Produits)
-              - Médias enrichis avec Miniatures générées automatiquement
-              - Rappel (Recall) & Suppression de messages
-              - Reçus de lecture (✓✓ bleu/vert), Présence & Frappe
-              - Notifications Push & Exportation Historique
-              - Traduction Automatique, à la Demande ou Push
            --------------------------------------------------------- */
+        function showMobileChatContacts() {
+            const sidebar = document.getElementById('chat-sidebar-panel');
+            const thread = document.getElementById('chat-thread-panel');
+            if (sidebar) sidebar.classList.remove('hidden');
+            if (thread) {
+                thread.classList.add('hidden');
+                thread.classList.remove('flex');
+            }
+        }
+
+        function showMobileChatThread() {
+            const sidebar = document.getElementById('chat-sidebar-panel');
+            const thread = document.getElementById('chat-thread-panel');
+            if (window.innerWidth < 768) {
+                if (sidebar) sidebar.classList.add('hidden');
+                if (thread) {
+                    thread.classList.remove('hidden');
+                    thread.classList.add('flex');
+                }
+            }
+        }
+
         function openChatWithSeller(sellerName, attachProductId = null) {
             let conv = chatConversations.find(c => c.name.toLowerCase() === sellerName.toLowerCase());
             if (!conv) {
@@ -2251,6 +2322,7 @@
             }
             currentChatId = conv.id;
             switchView('messages');
+            showMobileChatThread();
 
             if (attachProductId) {
                 sendStructuredProductCard(attachProductId);
@@ -2272,7 +2344,7 @@
                     <div class="flex-1 min-w-0">
                         <div class="flex justify-between items-center">
                             <b class="text-sm truncate">${c.name}</b>
-                            <span class="text-[10px] text-gray-400">${c.time}</span>
+                            <span class="text-[10px] text-gray-400 shrink-0 ml-1">${c.time}</span>
                         </div>
                         <p class="text-xs text-gray-500 truncate mt-0.5">${c.lastMsg}</p>
                     </div>
@@ -2286,7 +2358,6 @@
             currentChatId = convId;
             const conv = chatConversations.find(c => c.id === convId);
             if (conv && conv.messages) {
-                // Envoi d'accusé de lecture Agora Chat (Read Receipt)
                 conv.messages.forEach(m => {
                     if (m.sender === 'them' && m.status !== 'read') {
                         m.status = 'read';
@@ -2300,6 +2371,7 @@
                 saveAllToStorage();
             }
             renderChatContacts();
+            showMobileChatThread();
         }
 
         function renderChatMessages() {
@@ -2323,7 +2395,6 @@
             box.innerHTML = conv.messages.map(m => {
                 const isMe = m.sender === 'me';
 
-                // Gestion des messages rappelés (Recall)
                 if (m.recalled) {
                     return `
                         <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
@@ -2338,11 +2409,11 @@
                 if (m.type === 'text') {
                     const showAutoTrans = chatAutoTranslate && m.translatedText && m.translatedText !== m.content;
                     bodyHtml = `
-                        <div class="leading-relaxed">${m.content}</div>
+                        <div class="leading-relaxed break-words">${m.content}</div>
                         ${showAutoTrans ? `
                             <div class="mt-1.5 pt-1.5 border-t border-black/10 dark:border-white/10 text-xs text-emerald-800 dark:text-emerald-300">
                                 <span class="text-[10px] font-bold uppercase tracking-wider opacity-75"><i class="fa-solid fa-language"></i> Traduit (${chatPreferredLang.toUpperCase()}) :</span>
-                                <div class="font-medium mt-0.5">${m.translatedText}</div>
+                                <div class="font-medium mt-0.5 break-words">${m.translatedText}</div>
                             </div>` : ''}
                         <div class="mt-1 flex items-center gap-2">
                             <button onclick="translateMessageOnDemand('${m.id}')" class="text-[10px] text-[#007185] dark:text-cyan-400 hover:underline font-semibold">
@@ -2355,14 +2426,14 @@
                     bodyHtml = `
                         <div class="space-y-1">
                             <div class="relative group cursor-pointer" onclick="window.open('${m.content}', '_blank')">
-                                <img src="${thumbSrc}" class="max-w-[230px] max-h-[180px] rounded-lg object-cover border border-black/10">
+                                <img src="${thumbSrc}" class="max-w-[200px] sm:max-w-[230px] max-h-[180px] rounded-lg object-cover border border-black/10">
                                 <span class="absolute bottom-1.5 left-1.5 bg-black/65 text-white text-[9px] px-1.5 py-0.5 rounded">Miniature HD • Cliquer pour agrandir</span>
                             </div>
                         </div>`;
                 } else if (m.type === 'video') {
                     bodyHtml = `
                         <div class="space-y-1">
-                            <video src="${m.content}" poster="${m.thumbnail || ''}" controls class="max-w-[240px] rounded-lg bg-black"></video>
+                            <video src="${m.content}" poster="${m.thumbnail || ''}" controls class="max-w-[210px] sm:max-w-[240px] rounded-lg bg-black"></video>
                             <span class="text-[10px] opacity-70 block"><i class="fa-solid fa-film"></i> Vidéo enrichie avec aperçu</span>
                         </div>`;
                 } else if (m.type === 'location') {
@@ -2371,7 +2442,7 @@
                     const addr = m.coords ? m.coords.address : m.content;
                     const mapUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`;
                     bodyHtml = `
-                        <div class="bg-white/90 dark:bg-slate-900 rounded-xl p-2.5 border border-gray-200 dark:border-slate-700 space-y-1.5 max-w-[240px]">
+                        <div class="bg-white/90 dark:bg-slate-900 rounded-xl p-2.5 border border-gray-200 dark:border-slate-700 space-y-1.5 max-w-[230px] sm:max-w-[240px]">
                             <div class="flex items-center gap-2 text-xs font-bold text-red-600 dark:text-red-400">
                                 <i class="fa-solid fa-location-dot text-base"></i>
                                 <span>Position GPS Partagée</span>
@@ -2385,7 +2456,7 @@
                 } else if (m.type === 'product_card') {
                     const card = m.cardData || {};
                     bodyHtml = `
-                        <div class="bg-white dark:bg-slate-900 rounded-xl p-2.5 border border-amber-400/60 space-y-2 max-w-[250px] shadow-sm">
+                        <div class="bg-white dark:bg-slate-900 rounded-xl p-2.5 border border-amber-400/60 space-y-2 max-w-[230px] sm:max-w-[250px] shadow-sm">
                             <div class="text-[10px] font-extrabold uppercase text-[#ff9900] flex items-center gap-1">
                                 <i class="fa-solid fa-tag"></i> Message Structuré • Article Okazion
                             </div>
@@ -2406,13 +2477,12 @@
                             <button onclick="showToast('Lecture de la note vocale...', 'info')" class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-play"></i></button>
                             <div class="text-xs">
                                 <b>Note vocale</b>
-                                <div class="w-28 h-1.5 bg-gray-400/40 rounded-full mt-1"><div class="w-2/3 h-full bg-emerald-600 rounded-full"></div></div>
+                                <div class="w-24 sm:w-28 h-1.5 bg-gray-400/40 rounded-full mt-1"><div class="w-2/3 h-full bg-emerald-600 rounded-full"></div></div>
                             </div>
                             <span class="text-[10px] opacity-70">0:08</span>
                         </div>`;
                 }
 
-                // Reçu de lecture (✓ envoyé, ✓✓ lu)
                 const receiptHtml = isMe
                     ? (m.status === 'read'
                         ? '<span class="text-cyan-600 dark:text-cyan-400 font-bold" title="Lu par le destinataire">✓✓</span>'
@@ -2434,7 +2504,7 @@
                                 <i class="fa-solid fa-trash"></i>
                             </button>`}
 
-                        <div class="max-w-[78%] px-3.5 py-2 rounded-2xl text-xs sm:text-sm shadow-sm ${isMe ? 'bg-[#dcf8c6] dark:bg-emerald-900 text-gray-900 dark:text-white rounded-tr-none' : 'bg-white dark:bg-slate-800 text-gray-900 dark:text-white rounded-tl-none'}">
+                        <div class="max-w-[82%] sm:max-w-[78%] px-3.5 py-2 rounded-2xl text-xs sm:text-sm shadow-sm ${isMe ? 'bg-[#dcf8c6] dark:bg-emerald-900 text-gray-900 dark:text-white rounded-tr-none' : 'bg-white dark:bg-slate-800 text-gray-900 dark:text-white rounded-tl-none'}">
                             ${bodyHtml}
                             <div class="text-[10px] opacity-75 text-right mt-1 flex items-center justify-end gap-1">
                                 <span>${m.time}</span>
@@ -2447,7 +2517,6 @@
             box.scrollTop = box.scrollHeight;
         }
 
-        // Génération automatique de miniature (Canvas) pour les médias enrichis
         function generateImageThumbnail(dataUrl, maxWidth = 240) {
             return new Promise((resolve) => {
                 const img = new Image();
@@ -2465,7 +2534,6 @@
             });
         }
 
-        // Emojis
         function toggleEmojiPicker() {
             const picker = document.getElementById('chat-emoji-picker');
             if (picker) picker.classList.toggle('hidden');
@@ -2479,7 +2547,6 @@
             handleChatTypingSignal();
         }
 
-        // Indicateur de frappe (Typing Signal Agora CMD)
         function handleChatTypingSignal() {
             const conv = chatConversations.find(c => c.id === currentChatId);
             if (!conv) return;
@@ -2525,7 +2592,6 @@
             }
         }
 
-        // Envoi de message texte avec traduction automatique Agora
         async function sendChatText() {
             const input = document.getElementById('chat-text-input');
             const text = input.value.trim();
@@ -2561,7 +2627,6 @@
             saveAllToStorage();
             renderChatContacts();
 
-            // Envoi via Agora Chat SDK
             if (agoraChatClient && agoraChatConnected && window.AgoraChat) {
                 try {
                     const option = {
@@ -2576,7 +2641,6 @@
                 } catch (e) {}
             }
 
-            // Simulation réaliste de lecture et réponse du vendeur avec indicateur de frappe
             setTimeout(() => {
                 newMsgObj.status = 'read';
                 saveAllToStorage();
@@ -2614,7 +2678,6 @@
             }, 2800);
         }
 
-        // Envoi de médias enrichis avec miniatures générées automatiquement
         function sendChatMedia(type, event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -2646,7 +2709,6 @@
             reader.readAsDataURL(file);
         }
 
-        // Envoi d'emplacement GPS réel (Géolocalisation navigateur + Fallback Kinshasa/Paris)
         function sendGpsLocationMessage() {
             const conv = chatConversations.find(c => c.id === currentChatId);
             if (!conv) return;
@@ -2700,7 +2762,6 @@
             }
         }
 
-        // Envoi d'un message structuré (Fiche produit interactive Okazion)
         function sendStructuredProductCard(productId = null) {
             const conv = chatConversations.find(c => c.id === currentChatId);
             if (!conv) return;
@@ -2748,7 +2809,6 @@
             }
         }
 
-        // Rappel de message (Recall Agora Chat)
         function recallChatMessage(msgId) {
             const conv = chatConversations.find(c => c.id === currentChatId);
             if (!conv) return;
@@ -2777,7 +2837,6 @@
             if (activeViewName === 'messages') renderChatContacts();
         }
 
-        // Suppression locale de message
         function deleteChatMessage(msgId) {
             const conv = chatConversations.find(c => c.id === currentChatId);
             if (!conv) return;
@@ -2795,7 +2854,6 @@
             if (activeViewName === 'messages') renderChatMessages();
         }
 
-        // Traduction Automatique, à la Demande et Push (Agora Translation Engine)
         function updateChatPreferredLanguage(lang) {
             chatPreferredLang = lang;
             localStorage.setItem('okazion_chat_lang', lang);
@@ -2811,7 +2869,6 @@
         }
 
         async function performAgoraTranslation(text, targetLang) {
-            // 1. Appel natif SDK Agora Translation si connecté
             if (agoraChatClient && agoraChatConnected && typeof agoraChatClient.translateMessage === 'function') {
                 try {
                     const res = await agoraChatClient.translateMessage({ text, languages: [targetLang] });
@@ -2821,7 +2878,6 @@
                 } catch (e) {}
             }
 
-            // 2. Fallback API de traduction temps réel gratuite (MyMemory) pour fonctionnement immédiat sans simulation
             try {
                 const sourcePair = targetLang === 'fr' ? 'en|fr' : `fr|${targetLang}`;
                 const resp = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourcePair}`);
@@ -2848,7 +2904,6 @@
             showToast('Message traduit !', 'success');
         }
 
-        // Notifications Push (Web Push API + Agora Push)
         function toggleChatPushNotifications() {
             chatPushEnabled = !chatPushEnabled;
             localStorage.setItem('okazion_chat_push', JSON.stringify(chatPushEnabled));
@@ -2875,7 +2930,6 @@
             }
         }
 
-        // Exportation de l'historique complet des discussions
         function exportChatHistory() {
             const conv = chatConversations.find(c => c.id === currentChatId);
             if (!conv) return;
@@ -3003,6 +3057,12 @@
                 return;
             }
 
+            const publishBtn = document.getElementById('btn-publish-product');
+            if (publishBtn) {
+                publishBtn.disabled = true;
+                publishBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Publication et synchronisation Supabase...';
+            }
+
             const newProd = {
                 id: Date.now(),
                 title,
@@ -3024,9 +3084,36 @@
             products.unshift(newProd);
             saveAllToStorage();
 
+            let supabaseSynced = false;
+            let supabaseErrorMsg = '';
+
             if (supabaseClient) {
-                try {
-                    await supabaseClient.from('annonces').insert([{
+                // 1. Tentative d'insertion complète avec tous les champs de l'annonce
+                const fullPayload = {
+                    title: newProd.title,
+                    price: newProd.price,
+                    city: newProd.city,
+                    category: newProd.category,
+                    type: newProd.type,
+                    condition: newProd.condition,
+                    seller: newProd.seller,
+                    verified: newProd.verified,
+                    boosted: newProd.boosted,
+                    rating: newProd.rating,
+                    photos: newProd.photos,
+                    video_url: newProd.video_url,
+                    description: newProd.description
+                };
+
+                let { data, error } = await supabaseClient
+                    .from('annonces')
+                    .insert([fullPayload])
+                    .select();
+
+                // 2. Repli intelligent si certaines colonnes optionnelles n'existent pas encore dans la table Supabase
+                if (error && (error.code === 'PGRST204' || (error.message && error.message.toLowerCase().includes('column')))) {
+                    console.warn("Colonne absente détectée sur Supabase, tentative d'insertion avec les colonnes principales :", error.message);
+                    const corePayload = {
                         title: newProd.title,
                         price: newProd.price,
                         city: newProd.city,
@@ -3034,8 +3121,31 @@
                         type: newProd.type,
                         condition: newProd.condition,
                         description: newProd.description
-                    }]);
-                } catch (e) {}
+                    };
+                    const fallbackRes = await supabaseClient
+                        .from('annonces')
+                        .insert([corePayload])
+                        .select();
+                    data = fallbackRes.data;
+                    error = fallbackRes.error;
+                }
+
+                if (error) {
+                    console.error("Erreur insertion Supabase :", error);
+                    supabaseErrorMsg = error.message || error.details || 'Erreur RLS ou schéma Supabase';
+                } else if (data && data.length > 0) {
+                    // Synchroniser l'ID local avec l'ID réel généré par Supabase pour éviter les doublons Realtime
+                    newProd.id = data[0].id;
+                    saveAllToStorage();
+                    supabaseSynced = true;
+                } else {
+                    supabaseSynced = true;
+                }
+            }
+
+            if (publishBtn) {
+                publishBtn.disabled = false;
+                publishBtn.innerHTML = "Publier l'annonce sur Okazion";
             }
 
             uploadedPhotos = [];
@@ -3045,7 +3155,14 @@
             document.getElementById('new-desc').value = '';
             renderUploadedMediaPreviews();
 
-            showToast('Annonce publiée avec succès sur la marketplace !', 'success');
+            if (supabaseSynced) {
+                showToast('Annonce publiée et synchronisée avec Supabase !', 'success');
+            } else if (supabaseErrorMsg) {
+                showToast(`Annonce enregistrée localement. Supabase : ${supabaseErrorMsg}`, 'error');
+            } else {
+                showToast('Annonce publiée sur Okazion !', 'success');
+            }
+
             switchView('seller-dashboard');
         }
 
@@ -3075,16 +3192,16 @@
             const tbody = document.getElementById('seller-listings-table');
             tbody.innerHTML = products.map(p => `
                 <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/40">
-                    <td class="p-4 flex items-center gap-3">
-                        <img src="${p.photos[0]}" class="w-11 h-11 rounded-lg object-cover bg-gray-100">
+                    <td class="p-3 sm:p-4 flex items-center gap-3">
+                        <img src="${p.photos[0]}" class="w-11 h-11 rounded-lg object-cover bg-gray-100 shrink-0">
                         <b class="line-clamp-1 max-w-xs">${p.title}</b>
                     </td>
-                    <td class="p-4 font-bold text-[#b12704] dark:text-[#ff9900]">${formatPrice(p.price)}</td>
-                    <td class="p-4 text-xs">${p.type} • ${p.city}</td>
-                    <td class="p-4">
+                    <td class="p-3 sm:p-4 font-bold text-[#b12704] dark:text-[#ff9900] whitespace-nowrap">${formatPrice(p.price)}</td>
+                    <td class="p-3 sm:p-4 text-xs whitespace-nowrap">${p.type} • ${p.city}</td>
+                    <td class="p-3 sm:p-4 whitespace-nowrap">
                         ${p.boosted ? '<span class="bg-[#ff9900]/20 text-[#ff9900] text-xs font-bold px-2.5 py-1 rounded-full">★ Boosté</span>' : '<span class="text-xs text-gray-400">Standard</span>'}
                     </td>
-                    <td class="p-4 text-right space-x-2 whitespace-nowrap">
+                    <td class="p-3 sm:p-4 text-right space-x-2 whitespace-nowrap">
                         <button onclick="toggleBoostProduct(${p.id})" class="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-slate-700 text-xs font-bold hover:bg-[#ff9900] hover:text-black transition">
                             ${p.boosted ? 'Retirer Boost' : 'Booster'}
                         </button>
@@ -3106,10 +3223,13 @@
         }
 
         async function deleteListing(id) {
-            products = products.filter(p => p.id !== id);
+            products = products.filter(p => String(p.id) !== String(id));
             saveAllToStorage();
             if (supabaseClient) {
-                try { await supabaseClient.from('annonces').delete().eq('id', id); } catch (e) {}
+                try {
+                    const { error } = await supabaseClient.from('annonces').delete().eq('id', id);
+                    if (error) console.warn("Erreur suppression Supabase :", error.message);
+                } catch (e) {}
             }
             renderSellerDashboard();
             if (activeViewName === 'admin-dashboard') renderAdminDashboard();
@@ -3267,7 +3387,7 @@
             const container = document.getElementById('admin-listings-table-container');
 
             container.innerHTML = `
-                <table class="w-full text-left border-collapse text-sm">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm min-w-[540px]">
                     <thead>
                         <tr class="bg-gray-100 dark:bg-slate-800 text-xs uppercase">
                             <th class="p-3">Annonce</th>
@@ -3281,7 +3401,7 @@
                             <tr>
                                 <td class="p-3 font-semibold">${p.title}</td>
                                 <td class="p-3 text-xs">${p.seller || 'Vendeur'}</td>
-                                <td class="p-3 font-bold">${formatPrice(p.price)}</td>
+                                <td class="p-3 font-bold whitespace-nowrap">${formatPrice(p.price)}</td>
                                 <td class="p-3 text-right">
                                     <button onclick="deleteListing(${p.id})" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg">
                                         Supprimer
