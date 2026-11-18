@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messagerie Pro — Okazion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @keyframes flash-border {
+            0%, 100% { 
+                border-color: #10b981; 
+                box-shadow: 0 0 0px rgba(16, 185, 129, 0); 
+            }
+            50% { 
+                border-color: #ff9900; 
+                box-shadow: 0 0 22px rgba(255, 153, 0, 0.75); 
+            }
+        }
+        .animate-flash {
+            animation: flash-border 0.8s ease-in-out infinite;
+            border-width: 2px !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans min-h-screen flex flex-col">
+
+    <!-- SYSTÈME DE NOTIFICATIONS TOAST -->
+    <div id="toast-container" class="fixed bottom-6 right-4 z-[9999] flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+    <!-- HEADER PRINCIPAL -->
+    <header class="bg-[#131921] text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-[1500px] mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-left"></i> Retour
+                </a>
+                <a href="index.html" class="flex items-center gap-2">
+                    <div class="bg-[#ff9900] text-[#131921] font-extrabold text-xl px-2.5 py-0.5 rounded-md">O</div>
+                    <span class="text-2xl font-extrabold tracking-tight">okazion<span class="text-[#ff9900] text-sm">.store Messages</span></span>
+                </a>
+            </div>
+            <div class="flex items-center gap-4 text-sm font-semibold">
+                <span id="connected-user-badge" class="hidden md:inline-block text-xs bg-white/10 px-3 py-1 rounded-full text-emerald-400"></span>
+                <a href="index.html" class="hover:text-[#ff9900]">Catalogue</a>
+                <a href="live.html" class="text-red-500 hover:underline">Live Pro</a>
+                <a href="messages.html" class="text-[#ff9900]">Messages</a>
+                <a href="cart.html" class="hover:text-[#ff9900]">Panier</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1500px] mx-auto p-4 sm:p-6 w-full flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- LISTE DYNAMIQUE DES CONVERSATIONS RÉELLES -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 space-y-4 flex flex-col h-[700px]">
+            <div class="border-b pb-3 flex items-center justify-between">
+                <span class="font-extrabold text-sm">Mes Discussions</span>
+                <span class="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span> En direct
+                </span>
+            </div>
+
+            <!-- Démarrer une discussion réelle avec un membre -->
+            <div class="flex gap-1.5">
+                <input type="email" id="new-contact-email" placeholder="Email du vendeur / acheteur..." class="flex-1 border rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-[#ff9900]">
+                <button onclick="startNewConversation()" class="bg-[#131921] hover:bg-gray-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition" title="Nouvelle discussion">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <div id="conversations-list" class="flex-1 overflow-y-auto space-y-2">
+                <div class="text-center text-gray-400 py-8 text-xs">
+                    <i class="fa-solid fa-spinner fa-spin text-[#ff9900] mb-1"></i>
+                    <p>Synchronisation des contacts...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FENÊTRE DE CHAT ACTIVE -->
+        <div id="chat-window-box" class="md:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-200 p-4 flex flex-col justify-between h-[700px] relative transition-all duration-300">
+            
+            <!-- En-tête du chat actif -->
+            <div class="border-b pb-3 flex items-center justify-between">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 id="chat-title" class="font-bold text-sm text-gray-900">Sélectionnez une discussion</h3>
+                        <span id="new-msg-badge" class="hidden bg-[#ff9900] text-[#131921] text-[10px] font-extrabold px-2 py-0.5 rounded-full animate-bounce">
+                            <i class="fa-solid fa-bell mr-1"></i> Nouveau message !
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="chat-status" class="text-[10px] text-emerald-600 font-semibold">Supabase Realtime Connecté</span>
+                        <span id="typing-indicator" class="text-[10px] text-amber-600 font-bold italic hidden">est en train d'écrire...</span>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button id="video-call-btn" onclick="startVideoCall()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-video mr-1"></i> Appel Vidéo
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Corps des messages -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto py-4 space-y-4 text-xs">
+                <div class="text-center text-gray-400 py-20 space-y-2">
+                    <i class="fa-regular fa-paper-plane text-3xl text-gray-300"></i>
+                    <p>Choisissez une conversation à gauche ou saisissez l'email d'un vendeur pour discuter en direct.</p>
+                </div>
+            </div>
+
+            <!-- SÉLECTEUR D'EMOJIS -->
+            <div id="emoji-picker" class="absolute bottom-20 left-4 bg-white border border-gray-200 shadow-xl rounded-2xl p-3 grid grid-cols-6 gap-2 text-lg hidden z-20">
+                <span onclick="addEmoji('😊')" class="cursor-pointer hover:scale-125 transition text-center">😊</span>
+                <span onclick="addEmoji('👍')" class="cursor-pointer hover:scale-125 transition text-center">👍</span>
+                <span onclick="addEmoji('🔥')" class="cursor-pointer hover:scale-125 transition text-center">🔥</span>
+                <span onclick="addEmoji('❤️')" class="cursor-pointer hover:scale-125 transition text-center">❤️</span>
+                <span onclick="addEmoji('🎉')" class="cursor-pointer hover:scale-125 transition text-center">🎉</span>
+                <span onclick="addEmoji('✨')" class="cursor-pointer hover:scale-125 transition text-center">✨</span>
+                <span onclick="addEmoji('🙏')" class="cursor-pointer hover:scale-125 transition text-center">🙏</span>
+                <span onclick="addEmoji('😂')" class="cursor-pointer hover:scale-125 transition text-center">😂</span>
+                <span onclick="addEmoji('📦')" class="cursor-pointer hover:scale-125 transition text-center">📦</span>
+                <span onclick="addEmoji('💡')" class="cursor-pointer hover:scale-125 transition text-center">💡</span>
+                <span onclick="addEmoji('🚀')" class="cursor-pointer hover:scale-125 transition text-center">🚀</span>
+                <span onclick="addEmoji('⭐')" class="cursor-pointer hover:scale-125 transition text-center">⭐</span>
+            </div>
+
+            <!-- Barre de saisie & Envoi multimédia -->
+            <div id="chat-input-bar" class="pt-3 border-t flex items-center gap-2 opacity-50 pointer-events-none">
+                <button type="button" onclick="toggleEmojiPicker()" class="text-gray-500 hover:text-[#ff9900] px-2 text-lg transition">
+                    <i class="fa-regular fa-face-smile"></i>
+                </button>
+
+                <button type="button" onclick="document.getElementById('media-input').click()" class="text-gray-500 hover:text-[#ff9900] px-2 text-lg transition" title="Envoyer une image, vidéo ou audio">
+                    <i class="fa-solid fa-paperclip"></i>
+                </button>
+                <input type="file" id="media-input" accept="image/*,video/*,audio/*" class="hidden" onchange="sendMediaFile(event)">
+
+                <input type="text" id="message-input" oninput="handleTypingInput()" onkeypress="checkEnter(event)" placeholder="Écrire votre message en direct..." class="flex-1 border rounded-xl px-4 py-2.5 text-xs outline-none focus:ring-2 focus:ring-[#ff9900]">
+                
+                <button id="send-btn" onclick="sendTextMessage()" class="bg-[#ff9900] hover:bg-[#e88b00] text-[#131921] font-bold px-5 py-2.5 rounded-xl text-xs transition shadow flex items-center gap-1.5">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const ENV = {
+            SUPABASE_URL: "https://xvrhubmhscaazmhytmla.supabase.co",
+            SUPABASE_ANON_KEY: "sb_publishable_EQB1DluDwn4QT58HJt6hJg_Bw170zA1"
+        };
+        const supabaseClient = window.supabase.createClient(ENV.SUPABASE_URL, ENV.SUPABASE_ANON_KEY);
+
+        let currentUserEmail = null;
+        let currentContact = null;
+        let knownContacts = new Map();
+        let typingTimeout = null;
+        let realtimeChannel = null;
+        let audioCtx = null;
+        let originalPageTitle = document.title;
+        let titleBlinkInterval = null;
+
+        // Déverrouillage AudioContext dès le premier clic utilisateur
+        document.addEventListener('click', () => {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }, { once: true });
+
+        // 1. INITIALISATION DE LA SESSION RÉELLE
+        async function initMessagingSession() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.href = 'auth.html';
+                return;
+            }
+            currentUserEmail = session.user.email;
+            document.getElementById('connected-user-badge').innerText = currentUserEmail;
+
+            // Vérifier si un destinataire est passé dans l'URL (?to=vendeur@email.com)
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetSeller = urlParams.get('to');
+
+            await loadConversationsFromSupabase(targetSeller);
+            subscribeToRealtimeMessages();
+        }
+
+        // 2. CHARGEMENT DYNAMIQUE DES CONVERSATIONS DEPUIS SUPABASE
+        async function loadConversationsFromSupabase(initialTarget = null) {
+            const { data, error } = await supabaseClient
+                .from('messages')
+                .select('*')
+                .or(`sender_email.eq.${currentUserEmail},receiver_email.eq.${currentUserEmail}`)
+                .order('created_at', { ascending: false });
+
+            knownContacts.clear();
+
+            if (initialTarget && initialTarget !== currentUserEmail) {
+                knownContacts.set(initialTarget, { lastMsg: "Nouvelle discussion", time: new Date().toISOString(), unread: false });
+            }
+
+            if (!error && data) {
+                data.forEach(msg => {
+                    const otherUser = msg.sender_email === currentUserEmail ? msg.receiver_email : msg.sender_email;
+                    if (otherUser && !knownContacts.has(otherUser)) {
+                        knownContacts.set(otherUser, {
+                            lastMsg: msg.type === 'text' ? msg.content : `[Fichier ${msg.type}]`,
+                            time: msg.created_at,
+                            unread: false
+                        });
+                    }
+                });
+            }
+
+            renderConversationsList();
+
+            // Ouvrir automatiquement la conversation cible ou la plus récente
+            if (initialTarget && knownContacts.has(initialTarget)) {
+                await switchConversation(initialTarget);
+            } else if (knownContacts.size > 0 && !currentContact) {
+                const firstContact = knownContacts.keys().next().value;
+                await switchConversation(firstContact);
+            }
+        }
+
+        function renderConversationsList() {
+            const container = document.getElementById('conversations-list');
+            if (knownContacts.size === 0) {
+                container.innerHTML = `<div class="text-center text-gray-400 py-8 text-xs">Aucune discussion pour le moment.</div>`;
+                return;
+            }
+
+            let html = '';
+            knownContacts.forEach((info, email) => {
+                const isActive = email === currentContact;
+                const timeStr = new Date(info.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                html += `
+                    <div onclick="switchConversation('${email}')" class="p-3 ${isActive ? 'bg-teal-50 border border-teal-300' : 'hover:bg-gray-50 border border-transparent'} rounded-xl cursor-pointer transition">
+                        <div class="flex items-center justify-between gap-2">
+                            <h3 class="font-bold text-xs text-gray-900 truncate">${email}</h3>
+                            <span class="text-[10px] text-gray-400 shrink-0">${timeStr}</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-1">
+                            <p class="text-[11px] text-gray-500 truncate">${info.lastMsg}</p>
+                            ${info.unread ? '<span class="w-2.5 h-2.5 rounded-full bg-[#ff9900] shrink-0 animate-ping"></span>' : ''}
+                        </div>
+                    </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        async function startNewConversation() {
+            const input = document.getElementById('new-contact-email');
+            const email = input.value.trim().toLowerCase();
+            if (!email || !email.includes('@') || email === currentUserEmail) {
+                showToast("Veuillez saisir une adresse email valide.");
+                return;
+            }
+            input.value = '';
+            if (!knownContacts.has(email)) {
+                knownContacts.set(email, { lastMsg: "Démarrer l'échange...", time: new Date().toISOString(), unread: false });
+            }
+            await switchConversation(email);
+        }
+
+        // 3. CHARGEMENT DES MESSAGES D'UNE CONVERSATION
+        async function loadMessagesForContact(contactEmail) {
+            const { data, error } = await supabaseClient
+                .from('messages')
+                .select('*')
+                .or(`and(sender_email.eq.${currentUserEmail},receiver_email.eq.${contactEmail}),and(sender_email.eq.${contactEmail},receiver_email.eq.${currentUserEmail})`)
+                .order('created_at', { ascending: true });
+
+            if (error) {
+                console.error("Erreur de chargement :", error.message);
+                return;
+            }
+            renderMessages(data || []);
+        }
+
+        // 4. ÉCOUTE SUPABASE REALTIME EN TEMPS RÉEL
+        function subscribeToRealtimeMessages() {
+            if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
+
+            realtimeChannel = supabaseClient
+                .channel('public:messages')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+                    const newMsg = payload.new;
+                    const involvesMe = newMsg.sender_email === currentUserEmail || newMsg.receiver_email === currentUserEmail;
+                    if (!involvesMe) return;
+
+                    const otherUser = newMsg.sender_email === currentUserEmail ? newMsg.receiver_email : newMsg.sender_email;
+                    const isIncoming = newMsg.sender_email !== currentUserEmail;
+
+                    // Mettre à jour la liste latérale
+                    knownContacts.set(otherUser, {
+                        lastMsg: newMsg.type === 'text' ? newMsg.content : `[Fichier ${newMsg.type}]`,
+                        time: newMsg.created_at || new Date().toISOString(),
+                        unread: isIncoming && otherUser !== currentContact
+                    });
+                    renderConversationsList();
+
+                    // Afficher le message si la discussion est ouverte
+                    if (otherUser === currentContact) {
+                        appendSingleMessage(newMsg);
+                    }
+
+                    // Déclencher son et alerte visuelle si c'est un message reçu
+                    if (isIncoming) {
+                        playNotificationSound();
+                        triggerVisualAlert(newMsg.sender_email);
+                    }
+                })
+                .subscribe();
+        }
+
+        // SYNTHÉTISEUR AUDIO WEB AUDIO API
+        function playNotificationSound() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const now = audioCtx.currentTime;
+                const osc1 = audioCtx.createOscillator();
+                const gain1 = audioCtx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(880, now);
+                gain1.gain.setValueAtTime(0.15, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+                osc1.connect(gain1);
+                gain1.connect(audioCtx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.15);
+
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(1318.5, now + 0.12);
+                gain2.gain.setValueAtTime(0.18, now + 0.12);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.start(now + 0.12);
+                osc2.stop(now + 0.4);
+            } catch (e) {}
+        }
+
+        // ALERTE VISUELLE CAPTIVANTE
+        function triggerVisualAlert(senderName) {
+            const chatBox = document.getElementById('chat-window-box');
+            const badge = document.getElementById('new-msg-badge');
+
+            chatBox.classList.add('animate-flash');
+            badge.classList.remove('hidden');
+            showToast(`💬 Nouveau message de ${senderName}`);
+
+            clearInterval(titleBlinkInterval);
+            let toggle = false;
+            titleBlinkInterval = setInterval(() => {
+                document.title = toggle ? `🔔 Nouveau message ! — Okazion` : originalPageTitle;
+                toggle = !toggle;
+            }, 900);
+
+            setTimeout(() => {
+                chatBox.classList.remove('animate-flash');
+                badge.classList.add('hidden');
+                clearInterval(titleBlinkInterval);
+                document.title = originalPageTitle;
+            }, 4500);
+        }
+
+        function renderMessages(messagesList) {
+            const container = document.getElementById('chat-messages');
+            if (messagesList.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-400 py-12 space-y-2">
+                        <i class="fa-regular fa-comments text-3xl text-gray-300"></i>
+                        <p>Aucun message échangé. Envoyez le premier message à <b>${currentContact}</b> !</p>
+                    </div>`;
+                return;
+            }
+            container.innerHTML = messagesList.map(m => buildMessageHTML(m)).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function appendSingleMessage(m) {
+            const container = document.getElementById('chat-messages');
+            if (container.innerHTML.includes("Aucun message échangé")) container.innerHTML = '';
+            container.insertAdjacentHTML('beforeend', buildMessageHTML(m));
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function buildMessageHTML(m) {
+            const isMe = m.sender_email === currentUserEmail;
+            const senderLabel = isMe ? "Vous" : m.sender_email;
+            const timeFormatted = new Date(m.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            if (m.type === 'image') {
+                return `<div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-1"><span class="text-[10px] text-gray-400 px-1">${senderLabel} • ${timeFormatted}</span><div class="${isMe ? 'bg-emerald-50 border border-emerald-100' : 'bg-gray-100'} p-2 rounded-2xl max-w-xs shadow-sm"><img src="${m.content}" class="rounded-xl max-h-48 object-cover w-full"></div></div>`;
+            } else if (m.type === 'video') {
+                return `<div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-1"><span class="text-[10px] text-gray-400 px-1">${senderLabel} • ${timeFormatted}</span><div class="${isMe ? 'bg-emerald-50 border border-emerald-100' : 'bg-gray-100'} p-2 rounded-2xl max-w-xs shadow-sm"><video src="${m.content}" controls class="rounded-xl max-h-48 w-full"></video></div></div>`;
+            } else if (m.type === 'audio') {
+                return `<div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-1"><span class="text-[10px] text-gray-400 px-1">${senderLabel} • ${timeFormatted}</span><div class="${isMe ? 'bg-emerald-50 border border-emerald-100' : 'bg-gray-100'} p-3 rounded-2xl max-w-xs shadow-sm"><audio src="${m.content}" controls class="w-full h-8"></audio></div></div>`;
+            } else {
+                return `<div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-1"><span class="text-[10px] text-gray-400 px-1">${senderLabel} • ${timeFormatted}</span><div class="${isMe ? 'bg-emerald-50 border border-emerald-100 text-emerald-900' : 'bg-gray-100 text-gray-800'} p-3 rounded-2xl max-w-md shadow-sm"><p>${m.content}</p></div></div>`;
+            }
+        }
+
+        async function switchConversation(email) {
+            currentContact = email;
+            document.getElementById('chat-title').innerText = email;
+            document.getElementById('chat-input-bar').classList.remove('opacity-50', 'pointer-events-none');
+            document.getElementById('video-call-btn').classList.remove('hidden');
+
+            if (knownContacts.has(email)) {
+                knownContacts.get(email).unread = false;
+            }
+            renderConversationsList();
+            await loadMessagesForContact(email);
+        }
+
+        async function sendTextMessage() {
+            const input = document.getElementById('message-input');
+            const sendBtn = document.getElementById('send-btn');
+            const text = input.value.trim();
+            if (!text || !currentUserEmail || !currentContact) return;
+
+            sendBtn.disabled = true;
+            input.value = '';
+
+            const { error } = await supabaseClient.from('messages').insert([{
+                sender_email: currentUserEmail,
+                receiver_email: currentContact,
+                content: text,
+                type: 'text'
+            }]);
+
+            sendBtn.disabled = false;
+            input.focus();
+
+            if (error) {
+                showToast("Échec de l'envoi du message.");
+                input.value = text;
+            }
+        }
+
+        function sendMediaFile(event) {
+            const file = event.target.files[0];
+            if (!file || !currentUserEmail || !currentContact) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                let fileType = 'image';
+                if (file.type.startsWith('video')) fileType = 'video';
+                if (file.type.startsWith('audio')) fileType = 'audio';
+
+                showToast("Envoi du fichier en cours...");
+
+                const { error } = await supabaseClient.from('messages').insert([{
+                    sender_email: currentUserEmail,
+                    receiver_email: currentContact,
+                    content: e.target.result,
+                    type: fileType
+                }]);
+
+                if (error) {
+                    showToast("Erreur lors de l'envoi du fichier.");
+                } else {
+                    showToast("Fichier envoyé !");
+                }
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        function handleTypingInput() {
+            const indicator = document.getElementById('typing-indicator');
+            indicator.classList.remove('hidden');
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => indicator.classList.add('hidden'), 1500);
+        }
+
+        function checkEnter(e) { if (e.key === 'Enter') sendTextMessage(); }
+        function toggleEmojiPicker() { document.getElementById('emoji-picker').classList.toggle('hidden'); }
+        function addEmoji(emoji) {
+            const input = document.getElementById('message-input');
+            input.value += emoji;
+            document.getElementById('emoji-picker').classList.add('hidden');
+            input.focus();
+        }
+
+        function startVideoCall() { showToast("Initialisation de l'appel vidéo..."); }
+
+        function showToast(msg) {
+            let container = document.getElementById('toast-container');
+            let toast = document.createElement('div');
+            toast.className = "bg-[#131921] text-white text-xs px-4 py-3 rounded-xl shadow-lg border border-gray-700 flex items-center justify-between gap-3 pointer-events-auto";
+            toast.innerHTML = `<span><i class="fa-solid fa-circle-check text-[#ff9900] mr-2"></i>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        window.onload = () => { initMessagingSession(); };
+    </script>
+</body>
+</html>

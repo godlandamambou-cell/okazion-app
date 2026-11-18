@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panier & Commande — Okazion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans min-h-screen flex flex-col pb-20">
+    <header class="bg-[#131921] text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-[1500px] mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="bg-[#ff9900] text-[#131921] font-extrabold text-xl px-2.5 py-0.5 rounded-md">O</div>
+                <span class="text-2xl font-extrabold tracking-tight">okazion<span class="text-[#ff9900] text-sm">.store Panier</span></span>
+            </a>
+            <a href="index.html" class="text-xs font-bold text-[#ff9900] hover:underline"><i class="fa-solid fa-arrow-left mr-1"></i> Continuer mes achats</a>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-8 w-full flex-1 space-y-6">
+        <h1 class="text-2xl font-extrabold">Mon Panier d'Achats</h1>
+        <div id="cart-container" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 space-y-4">
+            <div class="text-center py-12 text-gray-400 text-xs">Chargement du panier...</div>
+        </div>
+    </main>
+
+    <script>
+        const ENV = {
+            SUPABASE_URL: "https://xvrhubmhscaazmhytmla.supabase.co",
+            SUPABASE_ANON_KEY: "sb_publishable_EQB1DluDwn4QT58HJt6hJg_Bw170zA1"
+        };
+        const supabaseClient = window.supabase.createClient(ENV.SUPABASE_URL, ENV.SUPABASE_ANON_KEY);
+        let cart = [];
+        let currentUser = null;
+
+        async function initCart() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                // Récupérer le panier depuis Supabase s'il existe
+                const { data } = await supabaseClient.from('paniers').select('*').eq('user_id', currentUser.id).single();
+                if (data && data.items) {
+                    cart = data.items;
+                    localStorage.setItem('okazion_cart', JSON.stringify(cart));
+                } else {
+                    cart = JSON.parse(localStorage.getItem('okazion_cart')) || [];
+                    if (cart.length > 0) {
+                        await syncCartToSupabase();
+                    }
+                }
+            } else {
+                cart = JSON.parse(localStorage.getItem('okazion_cart')) || [];
+            }
+            renderCart();
+        }
+
+        async function syncCartToSupabase() {
+            if (!currentUser) return;
+            await supabaseClient.from('paniers').upsert({
+                user_id: currentUser.id,
+                items: cart,
+                updated_at: new Date()
+            });
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-container');
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 space-y-3">
+                        <i class="fa-solid fa-cart-shopping text-4xl text-gray-300"></i>
+                        <p class="text-sm text-gray-500 font-medium">Votre panier est vide.</p>
+                        <a href="index.html" class="inline-block bg-[#ff9900] text-[#131921] font-bold px-5 py-2.5 rounded-xl text-xs hover:bg-[#e88b00]">Découvrir les offres</a>
+                    </div>`;
+                return;
+            }
+
+            let total = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+
+            container.innerHTML = `
+                <div class="divide-y divide-gray-100">
+                    ${cart.map(item => `
+                        <div class="py-4 flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-4">
+                                <img src="${item.image || 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&q=80&w=200'}" alt="${item.title}" class="w-16 h-16 object-cover rounded-xl border">
+                                <div>
+                                    <h3 class="font-bold text-sm text-gray-800">${item.title}</h3>
+                                    <p class="text-xs text-gray-500">Ville : ${item.city || 'Kinshasa'} | ${item.condition || 'Neuf'}</p>
+                                    <p class="text-xs font-bold text-[#b12704] mt-1">${item.price} € x ${item.qty}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <button onclick="updateQty('${item.id}', -1)" class="w-8 h-8 rounded-lg bg-gray-100 font-bold hover:bg-gray-200">-</button>
+                                <span class="text-sm font-bold">${item.qty}</span>
+                                <button onclick="updateQty('${item.id}', 1)" class="w-8 h-8 rounded-lg bg-gray-100 font-bold hover:bg-gray-200">+</button>
+                                <button onclick="removeItem('${item.id}')" class="text-red-500 hover:text-red-700 ml-4"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="border-t pt-4 flex items-center justify-between mt-6">
+                    <span class="text-base font-extrabold">Total Général :</span>
+                    <span class="text-2xl font-extrabold text-[#b12704]">${total.toFixed(2)} €</span>
+                </div>
+                <button onclick="checkout()" class="w-full bg-[#ff9900] hover:bg-[#e88b00] text-[#131921] font-bold py-3.5 rounded-xl text-sm shadow transition mt-4">
+                    Valider et Enregistrer la Commande
+                </button>`;
+        }
+
+        async function updateQty(id, change) {
+            let item = cart.find(i => String(i.id) === String(id));
+            if (!item) return;
+            item.qty += change;
+            if (item.qty <= 0) {
+                cart = cart.filter(i => String(i.id) !== String(id));
+            }
+            localStorage.setItem('okazion_cart', JSON.stringify(cart));
+            await syncCartToSupabase();
+            renderCart();
+        }
+
+        async function removeItem(id) {
+            cart = cart.filter(i => String(i.id) !== String(id));
+            localStorage.setItem('okazion_cart', JSON.stringify(cart));
+            await syncCartToSupabase();
+            renderCart();
+        }
+
+        // --- VALIDATION DE COMMANDE ET ÉCRITURE DANS SUPABASE (commandes) ---
+        async function checkout() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                alert("Veuillez vous connecter pour procéder au paiement et valider votre commande.");
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            if (cart.length === 0) return;
+
+            let total = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+
+            // 1. Insérer la commande dans la table 'commandes' de Supabase
+            const { error } = await supabaseClient.from('commandes').insert([{
+                user_id: session.user.id,
+                items: cart,
+                total: total,
+                payment_method: 'Mobile Money / Carte Bancaire',
+                status: 'Validée & En préparation'
+            }]);
+
+            if (error) {
+                alert("Erreur lors de l'enregistrement de la commande : " + error.message);
+                return;
+            }
+
+            // 2. Vider le panier dans Supabase et en local
+            cart = [];
+            localStorage.removeItem('okazion_cart');
+            if (currentUser) {
+                await supabaseClient.from('paniers').delete().eq('user_id', currentUser.id);
+            }
+
+            alert("Commande validée et enregistrée avec succès ! Retrouvez le suivi dans votre espace profil.");
+            window.location.href = 'profile.html#orders';
+        }
+
+        window.onload = () => {
+            initCart();
+        };
+    </script>
+</body>
+</html>

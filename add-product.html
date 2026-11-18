@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Déposer une annonce — Okazion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans min-h-screen flex flex-col pb-20">
+
+    <div id="toast-container" class="fixed bottom-6 right-4 z-[9999] flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+    <header class="bg-[#131921] text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-[1500px] mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-left"></i> Retour
+                </a>
+                <a href="index.html" class="flex items-center gap-2">
+                    <div class="bg-[#ff9900] text-[#131921] font-extrabold text-xl px-2.5 py-0.5 rounded-md">O</div>
+                    <span class="text-2xl font-extrabold tracking-tight">okazion<span class="text-[#ff9900] text-sm">.store Dépôt</span></span>
+                </a>
+            </div>
+            <a href="index.html" class="text-xs font-bold text-[#ff9900] hover:underline">Annuler</a>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 py-8 w-full flex-1">
+        <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200 space-y-6">
+            <div>
+                <h1 class="text-2xl font-extrabold text-gray-900">Publier une Nouvelle Annonce</h1>
+                <p class="text-xs text-gray-500 mt-1">Remplissez les informations ci-dessous. Votre offre sera liée à votre compte et publiée instantanément.</p>
+            </div>
+
+            <form onsubmit="publishProduct(event)" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Titre de l'annonce</label>
+                    <input type="text" id="prod-title" required placeholder="Ex: iPhone 15 Pro Max, Robe de mariée..." class="w-full border rounded-xl px-4 py-2.5 text-xs outline-none focus:ring-2 focus:ring-[#ff9900]">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Rayon / Catégorie</label>
+                        <select id="prod-category" class="w-full border rounded-xl px-4 py-2.5 text-xs outline-none bg-white">
+                            <option value="High-Tech">High-Tech</option>
+                            <option value="Mode">Mode & Mariage</option>
+                            <option value="Véhicules">Véhicules & Loc.</option>
+                            <option value="Maison">Maison & Jardin</option>
+                            <option value="Santé">Santé & Pharma</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Mode d'obtention</label>
+                        <select id="prod-mode" class="w-full border rounded-xl px-4 py-2.5 text-xs outline-none bg-white">
+                            <option value="Achat">Achat immédiat</option>
+                            <option value="Location">Location</option>
+                            <option value="Retrait">Retrait sur place</option>
+                            <option value="Enchère">Enchère Live</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">État de l'article</label>
+                        <select id="prod-condition" class="w-full border rounded-xl px-4 py-2.5 text-xs outline-none bg-white">
+                            <option value="Neuf">Neuf</option>
+                            <option value="Très bon état">Très bon état</option>
+                            <option value="Bon état">Bon état</option>
+                            <option value="Occasion">Occasion</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Prix</label>
+                        <input type="number" id="prod-price" required placeholder="950" class="w-full border rounded-xl px-4 py-2.5 text-xs outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Devise</label>
+                        <select id="prod-currency" class="w-full border rounded-xl px-4 py-2.5 text-xs outline-none bg-white font-bold text-[#ff9900]">
+                            <option value="EUR">EUR (€)</option>
+                            <option value="USD">USD ($)</option>
+                            <option value="CDF">CDF (FC)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Pays</label>
+                        <select id="prod-country" class="w-full border rounded-xl px-4 py-2.5 text-xs outline-none bg-white font-medium">
+                            <option value="RD Congo" selected>RD Congo</option>
+                            <option value="France">France</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Belgique">Belgique</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Ville / Localisation</label>
+                        <input type="text" id="prod-city" required placeholder="Ex: Kinshasa, Paris..." class="w-full border rounded-xl px-4 py-2.5 text-xs outline-none">
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-2 border-t">
+                    <label class="block text-xs font-extrabold text-gray-800">
+                        <i class="fa-solid fa-camera text-[#ff9900] mr-1"></i> Photos de l'objet (Maximum 5)
+                    </label>
+                    <div class="flex flex-wrap gap-3 items-center">
+                        <div id="photos-preview-container" class="flex flex-wrap gap-3"></div>
+                        <div id="add-photo-btn-wrapper" onclick="document.getElementById('photos-input').click()" class="w-20 h-20 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-[#ff9900] text-gray-400 hover:text-[#ff9900] transition bg-gray-50">
+                            <i class="fa-solid fa-plus text-lg"></i>
+                            <span class="text-[10px] font-bold mt-1">Ajouter</span>
+                            <input type="file" id="photos-input" accept="image/*" multiple class="hidden" onchange="handlePhotosSelect(event)">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full bg-[#ff9900] hover:bg-[#e88b00] text-[#131921] font-extrabold py-3.5 rounded-xl text-xs shadow-lg transition uppercase tracking-wider mt-6">
+                    <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Publier sur Supabase
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        const ENV = {
+            SUPABASE_URL: "https://xvrhubmhscaazmhytmla.supabase.co",
+            SUPABASE_ANON_KEY: "sb_publishable_EQB1DluDwn4QT58HJt6hJg_Bw170zA1"
+        };
+        const supabaseClient = window.supabase.createClient(ENV.SUPABASE_URL, ENV.SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        async function checkUserSession() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                alert("Veuillez vous connecter pour publier une annonce.");
+                window.location.href = 'auth.html';
+            } else {
+                currentUser = session.user;
+            }
+        }
+
+        let uploadedPhotos = [];
+
+        function handlePhotosSelect(event) {
+            const files = event.target.files;
+            if (!files) return;
+            for (let i = 0; i < files.length; i++) {
+                if (uploadedPhotos.length >= 5) break;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedPhotos.push(e.target.result);
+                    renderPhotosPreview();
+                }
+                reader.readAsDataURL(files[i]);
+            }
+            event.target.value = '';
+        }
+
+        function renderPhotosPreview() {
+            const container = document.getElementById('photos-preview-container');
+            container.innerHTML = uploadedPhotos.map((photo, index) => `
+                <div class="relative w-20 h-20 rounded-xl overflow-hidden border shadow-sm bg-black">
+                    <img src="${photo}" class="w-full h-full object-cover">
+                    <button type="button" onclick="uploadedPhotos.splice(${index}, 1); renderPhotosPreview();" class="absolute top-1 right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">×</button>
+                </div>
+            `).join('');
+        }
+
+        async function publishProduct(event) {
+            event.preventDefault();
+            if (!currentUser) {
+                alert("Session expirée, veuillez vous reconnecter.");
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Publication en cours...';
+
+            const newRecord = {
+                title: document.getElementById('prod-title').value,
+                category: document.getElementById('prod-category').value,
+                mode: document.getElementById('prod-mode').value,
+                condition: document.getElementById('prod-condition').value,
+                price: parseFloat(document.getElementById('prod-price').value),
+                currency: document.getElementById('prod-currency').value,
+                country: document.getElementById('prod-country').value,
+                city: document.getElementById('prod-city').value,
+                image: uploadedPhotos[0] || 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&q=80&w=600',
+                gallery: uploadedPhotos,
+                user_id: currentUser.id,
+                status: 'Disponible'
+            };
+
+            const { error } = await supabaseClient.from('annonces').insert([newRecord]);
+
+            if (error) {
+                alert("Erreur lors de la publication : " + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Publier sur Supabase';
+            } else {
+                alert("Annonce publiée avec succès !");
+                window.location.href = 'profile.html';
+            }
+        }
+
+        window.onload = () => {
+            checkUserSession();
+        };
+    </script>
+</body>
+</html>

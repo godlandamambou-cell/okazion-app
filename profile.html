@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Compte & Gestion Pro — Okazion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans min-h-screen flex flex-col pb-20">
+
+    <div id="toast-container" class="fixed bottom-6 right-4 z-[9999] flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+    <header class="bg-[#131921] text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-[1500px] mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-left"></i> Accueil
+                </a>
+                <a href="index.html" class="flex items-center gap-2">
+                    <div class="bg-[#ff9900] text-[#131921] font-extrabold text-xl px-2.5 py-0.5 rounded-md">O</div>
+                    <span class="text-2xl font-extrabold tracking-tight">okazion<span class="text-[#ff9900] text-sm">.store Compte</span></span>
+                </a>
+            </div>
+            <div class="flex items-center gap-4 text-sm font-semibold">
+                <button onclick="logoutUser()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Déconnexion
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-8 w-full flex-1 space-y-6">
+        
+        <!-- En-tête profil -->
+        <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200 space-y-6">
+            <div class="flex items-center justify-between border-b pb-6 flex-wrap gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="relative group cursor-pointer" onclick="document.getElementById('avatar-input').click()">
+                        <div id="avatar-container" class="w-20 h-20 bg-[#ff9900] text-[#131921] font-extrabold rounded-full flex items-center justify-center text-3xl overflow-hidden shadow-md">
+                            <span id="avatar-initial">A</span>
+                            <img id="avatar-img" src="" alt="Profil" class="w-full h-full object-cover hidden">
+                        </div>
+                        <div class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition text-xs font-bold">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                        <input type="file" id="avatar-input" accept="image/*" class="hidden" onchange="updateProfilePhoto(event)">
+                    </div>
+                    <div>
+                        <h1 id="user-email-display" class="text-xl font-extrabold text-gray-900">Chargement...</h1>
+                        <p class="text-xs text-gray-500">Compte Connecté • Okazion Pro</p>
+                        <span class="inline-block mt-1 bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                            <i class="fa-solid fa-circle-check"></i> Pro Vérifié & Certifié
+                        </span>
+                    </div>
+                </div>
+                <a href="add-product.html" class="bg-[#ff9900] hover:bg-[#e88b00] text-[#131921] font-bold px-5 py-3 rounded-xl text-xs shadow transition flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle"></i> Déposer une nouvelle annonce
+                </a>
+            </div>
+        </div>
+
+        <!-- SECTION 1 : HISTORIQUE DES ACHATS & SUIVI (ORDERS) -->
+        <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200 space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-extrabold flex items-center gap-2">
+                    <i class="fa-solid fa-box text-[#ff9900]"></i> Historique des Achats & Suivi
+                </h2>
+                <span id="orders-count" class="text-xs bg-gray-100 px-2.5 py-1 rounded-full font-semibold">0 commande</span>
+            </div>
+            <div id="orders-list" class="space-y-3">
+                <div class="text-center py-6 text-gray-400 text-xs">Chargement de vos commandes...</div>
+            </div>
+        </div>
+
+        <!-- SECTION 2 : MES ANNONCES (MODÉRATION & GESTION RÉELLE) -->
+        <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200 space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-extrabold flex items-center gap-2">
+                    <i class="fa-solid fa-store text-cyan-600"></i> Mes Annonces & Publications Pro
+                </h2>
+                <span id="listings-count" class="text-xs bg-gray-100 px-2.5 py-1 rounded-full font-semibold">0 annonce</span>
+            </div>
+            <div id="user-listings-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="col-span-full text-center py-6 text-gray-400 text-xs">Chargement de vos annonces...</div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const ENV = {
+            SUPABASE_URL: "https://xvrhubmhscaazmhytmla.supabase.co",
+            SUPABASE_ANON_KEY: "sb_publishable_EQB1DluDwn4QT58HJt6hJg_Bw170zA1"
+        };
+        const supabaseClient = window.supabase.createClient(ENV.SUPABASE_URL, ENV.SUPABASE_ANON_KEY);
+        let currentUser = null;
+
+        async function initProfile() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.href = 'auth.html';
+                return;
+            }
+            currentUser = session.user;
+            document.getElementById('user-email-display').innerText = currentUser.email;
+            document.getElementById('avatar-initial').innerText = currentUser.email.charAt(0).toUpperCase();
+
+            // Charger les données utilisateur depuis Supabase
+            await Promise.all([
+                loadUserOrders(currentUser.id),
+                loadUserListings(currentUser.id),
+                syncCartWithSupabase(currentUser.id)
+            ]);
+        }
+
+        // --- 1. PERSISTANCE ET CHARGEMENT DES COMMANDES (ORDERS) ---
+        async function loadUserOrders(userId) {
+            const { data, error } = await supabaseClient
+                .from('commandes')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            const container = document.getElementById('orders-list');
+            if (error || !data || data.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 text-gray-400 text-xs bg-gray-50 rounded-xl">Aucune commande enregistrée pour le moment.</div>`;
+                document.getElementById('orders-count').innerText = "0 commande";
+                return;
+            }
+
+            document.getElementById('orders-count').innerText = `${data.length} commande${data.length > 1 ? 's' : ''}`;
+            container.innerHTML = data.map(order => `
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-extrabold text-xs text-[#131921]">Commande #${order.id.slice(0, 8)}</span>
+                            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">${order.status || 'Validée & En cours'}</span>
+                        </div>
+                        <p class="text-xs text-gray-500">Date : ${new Date(order.created_at).toLocaleDateString('fr-FR', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
+                        <p class="text-xs font-medium text-gray-700">Montant total : <b class="text-[#b12704]">${order.total || 0} €</b></p>
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <button onclick="viewOrderDetails('${order.id}')" class="flex-1 sm:flex-initial bg-white border border-gray-300 hover:bg-gray-100 text-gray-800 font-bold px-3 py-2 rounded-lg text-xs transition">
+                            Détails de la commande
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- 2. PERSISTANCE DU PANIER ---
+        async function syncCartWithSupabase(userId) {
+            let localCart = JSON.parse(localStorage.getItem('okazion_cart')) || [];
+            
+            // Récupérer le panier distant depuis Supabase si la table 'paniers' existe
+            const { data, error } = await supabaseClient
+                .from('paniers')
+                .select('*')
+                .eq('user_id', userId)
+                .single();
+
+            if (data && data.items) {
+                // Fusion intelligente ou priorité au local si récent
+                if (localCart.length === 0) {
+                    localStorage.setItem('okazion_cart', JSON.stringify(data.items));
+                } else {
+                    // Sauvegarder le panier local vers Supabase pour l'autre appareil
+                    await supabaseClient.from('paniers').upsert({ user_id: userId, items: localCart, updated_at: new Date() });
+                }
+            } else if (localCart.length > 0) {
+                await supabaseClient.from('paniers').upsert({ user_id: userId, items: localCart, updated_at: new Date() });
+            }
+        }
+
+        // --- 3. GESTION ET MODÉRATION RÉELLE DES ANNONCES (UPDATE / DELETE) ---
+        async function loadUserListings(userId) {
+            const { data, error } = await supabaseClient
+                .from('annonces')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            const grid = document.getElementById('user-listings-grid');
+            if (error || !data || data.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-6 text-gray-400 text-xs bg-gray-50 rounded-xl">Vous n'avez publié aucune annonce pour le moment.</div>`;
+                document.getElementById('listings-count').innerText = "0 annonce";
+                return;
+            }
+
+            document.getElementById('listings-count').innerText = `${data.length} annonce${data.length > 1 ? 's' : ''}`;
+            grid.innerHTML = data.map(item => `
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 flex flex-col justify-between space-y-3">
+                    <div class="flex items-center gap-3">
+                        <img src="${item.image || 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&q=80&w=200'}" class="w-16 h-16 object-cover rounded-lg shrink-0">
+                        <div class="space-y-1 flex-1 min-w-0">
+                            <span class="text-[10px] font-bold bg-[#ff9900]/20 text-[#131921] px-2 py-0.5 rounded">${item.mode || 'Achat'}</span>
+                            <h3 class="font-bold text-xs truncate text-gray-900">${item.title}</h3>
+                            <p class="text-xs font-extrabold text-[#b12704]">${item.price} €</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between pt-2 border-t gap-2">
+                        <button onclick="markAsSold('${item.id}')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] transition">
+                            <i class="fa-solid fa-check mr-1"></i> Marquer vendu
+                        </button>
+                        <button onclick="applyDiscountPrompt('${item.id}', ${item.price})" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] transition" title="Appliquer un rabais / promo">
+                            <i class="fa-solid fa-tag"></i> Promo
+                        </button>
+                        <button onclick="deleteListing('${item.id}')" class="bg-red-600 hover:bg-red-700 text-white font-bold py-1.5 px-2 rounded-lg text-[11px] transition" title="Supprimer">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Requête UPDATE réelle : Marquer comme vendu
+        async function markAsSold(id) {
+            const { error } = await supabaseClient
+                .from('annonces')
+                .update({ status: 'Vendu', mode: 'Vendu' })
+                .eq('id', id)
+                .eq('user_id', currentUser.id);
+
+            if (error) {
+                showToast("Erreur lors de la mise à jour de l'annonce.");
+            } else {
+                showToast("Annonce marquée comme vendue avec succès !");
+                loadUserListings(currentUser.id);
+            }
+        }
+
+        // Requête UPDATE réelle : Rabais / Promo sur le prix
+        async function applyDiscountPrompt(id, currentPrice) {
+            let newPriceStr = prompt(`Entrez le nouveau prix promotionnel (Prix actuel : ${currentPrice} €) :`, currentPrice * 0.9);
+            if (!newPriceStr) return;
+            let newPrice = parseFloat(newPriceStr);
+            if (isNaN(newPrice) || newPrice <= 0) {
+                alert("Veuillez entrer un montant valide.");
+                return;
+            }
+
+            const { error } = await supabaseClient
+                .from('annonces')
+                .update({ price: newPrice })
+                .eq('id', id)
+                .eq('user_id', currentUser.id);
+
+            if (error) {
+                showToast("Erreur lors de l'application du rabais.");
+            } else {
+                showToast("Prix promotionnel appliqué avec succès !");
+                loadUserListings(currentUser.id);
+            }
+        }
+
+        // Requête DELETE réelle : Supprimer l'annonce de Supabase
+        async function deleteListing(id) {
+            if (!confirm("Êtes-vous sûr de vouloir supprimer définitivement cette annonce ?")) return;
+
+            const { error } = await supabaseClient
+                .from('annonces')
+                .delete()
+                .eq('id', id)
+                .eq('user_id', currentUser.id);
+
+            if (error) {
+                showToast("Erreur lors de la suppression de l'annonce.");
+            } else {
+                showToast("Annonce supprimée avec succès.");
+                loadUserListings(currentUser.id);
+            }
+        }
+
+        function viewOrderDetails(orderId) {
+            alert(`Détails complets de la commande #${orderId}`);
+        }
+
+        async function logoutUser() {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        function updateProfilePhoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('avatar-img');
+                    const initial = document.getElementById('avatar-initial');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    initial.classList.add('hidden');
+                    showToast("Photo de profil mise à jour.");
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function showToast(msg) {
+            let container = document.getElementById('toast-container');
+            let toast = document.createElement('div');
+            toast.className = "bg-[#131921] text-white text-xs px-4 py-3 rounded-xl shadow-lg border border-gray-700 flex items-center justify-between gap-3 pointer-events-auto";
+            toast.innerHTML = `<span><i class="fa-solid fa-circle-check text-[#ff9900] mr-2"></i>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        window.onload = () => {
+            initProfile();
+        };
+    </script>
+</body>
+</html>

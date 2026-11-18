@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Okazion — Services & Artisans</title>
+    <link rel="canonical" href="https://okazion.store" />
+    <meta name="theme-color" content="#131921">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } }
+        }
+    </script>
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-gray-100 text-gray-900 dark:bg-slate-950 dark:text-slate-100 pb-20 md:pb-0">
+    <header class="sticky top-0 z-50 bg-[#131921] text-white shadow-lg">
+        <div class="max-w-[1500px] mx-auto px-3 py-2.5 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-1.5"><div class="bg-[#ff9900] text-black font-extrabold px-2 py-0.5 rounded">O</div><span class="text-xl font-bold">okazion<span class="text-[#ff9900]">.store</span></span></a>
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="text-xs hover:text-[#ff9900]"><i class="fa-solid fa-house"></i> Accueil</a>
+                <a href="locations.html" class="text-xs hover:text-[#ff9900] text-amber-300"><i class="fa-solid fa-key"></i> Locations</a>
+                <a href="cart.html" class="text-xs hover:text-[#ff9900]"><i class="fa-solid fa-cart-shopping"></i> Panier</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1500px] mx-auto px-3 sm:px-6 py-6 space-y-6">
+        <div class="bg-gradient-to-r from-cyan-700 to-blue-900 text-white rounded-2xl p-6 shadow-sm">
+            <span class="bg-white/20 text-xs font-bold px-3 py-1 rounded-full uppercase">Annuaire des Artisans & Prestataires</span>
+            <h1 class="text-2xl sm:text-3xl font-extrabold mt-2">Gâteaux de Mariage, Modélistes, Peintres & Services Sur Mesure</h1>
+            <p class="text-sm text-cyan-100 mt-1">Engagez des professionnels qualifiés pour vos projets.</p>
+        </div>
+
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-extrabold">Services & Prestations Disponibles</h2>
+                <span id="services-counter" class="text-xs bg-gray-200 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">0 services</span>
+            </div>
+            <div id="services-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+        </div>
+    </main>
+
+    <script>
+        const ENV = {
+            SUPABASE_URL: "https://xvrhubmhscaazmhytmla.supabase.co",
+            SUPABASE_ANON_KEY: "sb_publishable_EQB1DluDwn4QT58HJt6hJg_Bw170zA1"
+        };
+        const supabaseClient = window.supabase.createClient(ENV.SUPABASE_URL, ENV.SUPABASE_ANON_KEY);
+
+        const baseServices = [
+            { id: 4, title: "Produit Collector Erable Digital & Services", category: "Santé", city: "Kinshasa", mode: "Achat", price: 22.00, image: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&q=80&w=600" }
+        ];
+
+        async function renderServices() {
+            let supabaseProducts = [];
+            if (supabaseClient) {
+                const { data } = await supabaseClient.from('annonces').select('*').eq('category', 'Santé');
+                if (data) supabaseProducts = data;
+            }
+            let customProducts = JSON.parse(localStorage.getItem('okazion_custom_products')) || [];
+
+            let allProducts = [...supabaseProducts, ...customProducts, ...baseServices];
+            let servs = allProducts.filter(p => p.category === 'Santé' || p.category === 'Services' || (p.mode || '').toLowerCase() === 'retrait');
+            
+            document.getElementById('services-counter').innerText = `${servs.length} services`;
+            const grid = document.getElementById('services-grid');
+            
+            if (servs.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-500">Aucun service disponible.</div>`;
+                return;
+            }
+
+            grid.innerHTML = servs.map(p => {
+                const imgSrc = p.image || (Array.isArray(p.gallery) && p.gallery[0]) || (Array.isArray(p.photos) && p.photos[0]) || 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&q=80&w=600';
+                return `
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden shadow-sm flex flex-col justify-between">
+                    <div class="h-48 bg-gray-50 dark:bg-slate-800 flex items-center justify-center p-3 relative cursor-pointer" onclick="window.location.href='product.html?id=${p.id}'">
+                        <img src="${imgSrc}" class="w-full h-full object-cover">
+                        <span class="absolute top-3 left-3 text-[10px] font-bold bg-cyan-600 text-white px-2 py-0.5 rounded">Service Pro</span>
+                    </div>
+                    <div class="p-4 space-y-2">
+                        <div class="text-[11px] text-gray-500"><i class="fa-solid fa-location-dot"></i> ${p.city || 'Kinshasa'}</div>
+                        <h3 class="font-bold text-sm line-clamp-2 cursor-pointer hover:text-[#ff9900]" onclick="window.location.href='product.html?id=${p.id}'">${p.title}</h3>
+                        <div class="text-base font-extrabold text-[#b12704] dark:text-[#ff9900]">À partir de ${p.price} €</div>
+                        <div class="flex gap-2 pt-1">
+                            <button onclick="window.location.href='product.html?id=${p.id}'" class="flex-1 bg-[#ff9900] text-black font-bold py-2 rounded-xl text-xs">Réserver</button>
+                            <a href="messages.html" class="bg-gray-100 dark:bg-slate-800 px-3 py-2 rounded-xl text-xs flex items-center justify-center"><i class="fa-solid fa-comments"></i></a>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        window.onload = () => { 
+            if (localStorage.getItem('okazion_theme') === 'dark') document.documentElement.classList.add('dark'); 
+            renderServices(); 
+        };
+    </script>
+</body>
+</html>

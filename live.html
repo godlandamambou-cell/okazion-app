@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Okazion Live — Directs & Enchères en Direct</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col">
+    <header class="bg-[#131921] border-b border-slate-800 px-4 py-3 sticky top-0 z-50">
+        <div class="max-w-[1500px] mx-auto flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="bg-[#ff9900] text-[#131921] font-extrabold text-xl px-2.5 py-0.5 rounded-md">O</div>
+                <span class="text-2xl font-extrabold tracking-tight">okazion<span class="text-[#ff9900] text-sm">.store Live</span></span>
+            </a>
+            <div class="flex items-center gap-4 text-sm font-semibold">
+                <a href="index.html" class="hover:text-[#ff9900]">Catalogue</a>
+                <a href="live.html" class="text-red-500 font-bold">Live Pro</a>
+                <a href="messages.html" class="hover:text-[#ff9900]">Messages</a>
+                <a href="cart.html" class="hover:text-[#ff9900]">Panier</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1500px] mx-auto p-6 w-full flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Zone Vidéo / Caméra -->
+        <div class="lg:col-span-2 bg-black rounded-2xl aspect-video border border-slate-800 flex items-center justify-center relative shadow-2xl overflow-hidden">
+            <div class="absolute top-4 left-4 z-10 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-white animate-ping"></span> EN DIRECT
+            </div>
+            
+            <!-- Élément Vidéo pour diffuser ou recevoir la caméra -->
+            <video id="live-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
+
+            <div id="video-placeholder" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-sm space-y-3 p-6 text-center">
+                <i class="fa-solid fa-video text-4xl text-[#ff9900]"></i>
+                <h1 class="text-xl font-extrabold">Studio Enchères Live & WebRTC</h1>
+                <p class="text-xs text-gray-400">Diffusez votre caméra ou rejoignez le direct en tant que spectateur</p>
+                <button onclick="startCamera()" class="bg-[#ff9900] hover:bg-[#e88b00] text-[#131921] font-bold px-5 py-2.5 rounded-xl text-xs shadow transition">
+                    Activer ma caméra (Diffuser)
+                </button>
+            </div>
+        </div>
+
+        <!-- Zone Chat & Enchères Instantanées -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 flex flex-col justify-between h-[500px] lg:h-auto">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-sm">Enchères & Chat en direct</h3>
+                <span id="connection-status" class="text-[10px] text-amber-400 font-semibold">Connexion...</span>
+            </div>
+
+            <!-- Liste des messages / enchères en temps réel -->
+            <div id="chat-container" class="flex-1 py-4 space-y-3 text-xs overflow-y-auto no-scrollbar">
+                <div class="bg-slate-800 p-3 rounded-xl text-gray-400 text-center">Chargement des enchères en direct...</div>
+            </div>
+
+            <!-- Formulaire d'enchère -->
+            <div class="pt-3 border-t border-slate-800 flex gap-2">
+                <input type="number" id="bid-input" placeholder="Montant de l'enchère ($)..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#ff9900]">
+                <button onclick="sendBid()" class="bg-[#ff9900] hover:bg-[#e88b00] text-[#131921] font-bold px-4 py-2 rounded-xl text-xs transition">Enchérir</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Script de Synchronisation en Temps Réel avec Supabase -->
+    <script>
+        const ENV = {
+            SUPABASE_URL: "https://xvrhubmhscaazmhytmla.supabase.co",
+            SUPABASE_ANON_KEY: "sb_publishable_EQB1DluDwn4QT58HJt6hJg_Bw170zA1"
+        };
+        const supabaseClient = window.supabase.createClient(ENV.SUPABASE_URL, ENV.SUPABASE_ANON_KEY);
+
+        let currentUserEmail = "Invité";
+
+        async function initLive() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                currentUserEmail = session.user.email.split('@')[0];
+            }
+
+            const statusEl = document.getElementById('connection-status');
+            statusEl.innerText = "Connecté en direct";
+            statusEl.className = "text-[10px] text-emerald-400 font-semibold";
+
+            loadBids();
+
+            // Écoute en temps réel des nouvelles enchères entre téléphones
+            supabaseClient
+                .channel('live-enchere-room')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'live_bids' }, payload => {
+                    appendBidToDOM(payload.new);
+                })
+                .subscribe();
+        }
+
+        async function loadBids() {
+            const container = document.getElementById('chat-container');
+            const { data, error } = await supabaseClient
+                .from('live_bids')
+                .select('*')
+                .order('created_at', { ascending: true });
+
+            if (!error && data) {
+                if (data.length === 0) {
+                    container.innerHTML = `<div class="bg-slate-800 p-3 rounded-xl text-gray-400 text-center">Aucune enchère pour l'instant. Soyez le premier !</div>`;
+                    return;
+                }
+                container.innerHTML = data.map(b => `
+                    <div class="bg-slate-800 p-3 rounded-xl flex justify-between items-center">
+                        <div><b>${b.username} :</b> Proposition à <span class="text-[#ff9900] font-bold">${b.amount} $</span></div>
+                        <span class="text-[9px] text-gray-500">${new Date(b.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}</span>
+                    </div>
+                `).join('');
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        function appendBidToDOM(b) {
+            const container = document.getElementById('chat-container');
+            if (container.innerHTML.includes('Aucune enchère')) {
+                container.innerHTML = '';
+            }
+            container.innerHTML += `
+                <div class="bg-slate-800 p-3 rounded-xl flex justify-between items-center animate-fade-in">
+                    <div><b>${b.username} :</b> Proposition à <span class="text-[#ff9900] font-bold">${b.amount} $</span></div>
+                    <span class="text-[9px] text-gray-500">${new Date(b.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}</span>
+                </div>
+            `;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendBid() {
+            const input = document.getElementById('bid-input');
+            const amount = parseFloat(input.value);
+            if (!amount || isNaN(amount)) {
+                alert("Veuillez entrer un montant valide.");
+                return;
+            }
+
+            const { error } = await supabaseClient.from('live_bids').insert([{
+                username: currentUserEmail,
+                amount: amount
+            }]);
+
+            if (error) {
+                alert("Erreur lors de l'envoi de l'enchère (Vérifiez que la table 'live_bids' existe dans Supabase).");
+            } else {
+                input.value = '';
+            }
+        }
+
+        // Activation de la caméra locale (pour le vendeur)
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const videoEl = document.getElementById('live-video');
+                videoEl.srcObject = stream;
+                document.getElementById('video-placeholder').style.display = 'none';
+            } catch (err) {
+                alert("Impossible d'accéder à la caméra ou au micro : " + err.message);
+            }
+        }
+
+        window.onload = () => {
+            initLive();
+        };
+    </script>
+</body>
+</html>
