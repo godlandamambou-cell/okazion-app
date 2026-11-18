@@ -7,46 +7,138 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-900 font-sans min-h-screen flex items-center justify-center p-4">
+<body class="bg-gray-100 text-gray-900 min-h-screen flex items-center justify-center p-4">
 
-    <div class="bg-white rounded-2xl p-8 shadow-xl max-w-md w-full space-y-6 border border-gray-200">
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-xl border border-gray-200 p-7 sm:p-8 space-y-6">
+        
+        <!-- Logo & Retour -->
         <div class="text-center space-y-2">
-            <a href="index.html" class="inline-flex items-center gap-2">
-                <div class="bg-[#ff9900] text-[#131921] font-extrabold text-xl px-2.5 py-0.5 rounded-md">O</div>
-                <span class="text-2xl font-extrabold tracking-tight">okazion<span class="text-[#ff9900] text-sm">.store</span></span>
+            <a href="index.html" class="inline-flex items-center gap-1.5 group">
+                <div class="bg-[#ff9900] text-[#131921] font-extrabold text-2xl px-3 py-0.5 rounded-lg group-hover:scale-105 transition">O</div>
+                <span class="text-2xl font-extrabold tracking-tight text-gray-900">okazion<span class="text-[#ff9900] text-sm font-bold">.store</span></span>
             </a>
-            <h1 id="form-title" class="text-xl font-extrabold text-gray-900">Connexion à votre compte</h1>
-            <p class="text-xs text-gray-500">Accédez à votre vitrine, vos messages et vos commandes.</p>
+            <h1 id="auth-title" class="text-xl font-extrabold text-gray-900 pt-1">Se connecter à Okazion</h1>
+            <p id="auth-subtitle" class="text-xs text-gray-500">Accédez à votre vitrine, vos messages et vos commandes.</p>
         </div>
 
-        <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
-            <div>
-                <label class="block text-xs font-bold text-gray-700 mb-1">Adresse Email</label>
-                <input type="email" id="auth-email" required placeholder="nom@exemple.com" class="w-full border rounded-xl px-4 py-2.5 text-xs outline-none focus:ring-2 focus:ring-[#ff9900]">
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-700 mb-1">Mot de passe</label>
-                <input type="password" id="auth-password" required placeholder="••••••••" class="w-full border rounded-xl px-4 py-2.5 text-xs outline-none focus:ring-2 focus:ring-[#ff9900]">
+        <!-- Onglets de bascule Connexion / Création de compte -->
+        <div class="grid grid-cols-2 bg-gray-100 p-1 rounded-xl text-xs font-bold">
+            <button type="button" id="tab-login" onclick="setAuthMode('login')" class="py-2 rounded-lg bg-white text-gray-900 shadow-sm transition">
+                Connexion
+            </button>
+            <button type="button" id="tab-signup" onclick="setAuthMode('signup')" class="py-2 rounded-lg text-gray-500 hover:text-gray-900 transition">
+                Créer un compte
+            </button>
+        </div>
+
+        <!-- Zone d'alerte / message de vérification e-mail -->
+        <div id="auth-alert" class="hidden p-3.5 rounded-xl text-xs font-medium leading-relaxed"></div>
+
+        <!-- Formulaire Principal -->
+        <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+            
+            <!-- CHAMPS RÉSERVÉS À LA CRÉATION DE COMPTE -->
+            <div id="signup-fields" class="hidden space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-gray-700">Prénom <span class="text-red-500">*</span></label>
+                        <input type="text" id="first-name" placeholder="Ex: Jean" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-2 focus:ring-[#ff9900]">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-gray-700">Nom <span class="text-red-500">*</span></label>
+                        <input type="text" id="last-name" placeholder="Ex: Kabongo" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-2 focus:ring-[#ff9900]">
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-gray-700">Pays de résidence <span class="text-red-500">*</span></label>
+                    <select id="country" class="w-full border border-gray-300 bg-white rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-2 focus:ring-[#ff9900] cursor-pointer">
+                        <option value="">-- Sélectionnez votre pays --</option>
+                        <option value="RD Congo">🇨🇩 République Démocratique du Congo</option>
+                        <option value="Congo-Brazzaville">🇨🇬 République du Congo</option>
+                        <option value="France">🇫🇷 France</option>
+                        <option value="Belgique">🇧🇪 Belgique</option>
+                        <option value="Canada">🇨🇦 Canada</option>
+                        <option value="Côte d'Ivoire">🇨🇮 Côte d'Ivoire</option>
+                        <option value="Sénégal">🇸🇳 Sénégal</option>
+                        <option value="Cameroun">🇨🇲 Cameroun</option>
+                        <option value="Gabon">🇬🇦 Gabon</option>
+                        <option value="Maroc">🇲🇦 Maroc</option>
+                        <option value="Suisse">🇨🇭 Suisse</option>
+                        <option value="États-Unis">🇺🇸 États-Unis</option>
+                        <option value="Autre">🌍 Autre pays</option>
+                    </select>
+                </div>
             </div>
 
-            <button type="submit" id="auth-submit-btn" class="w-full bg-[#ff9900] hover:bg-[#e88b00] text-[#131921] font-extrabold py-3 rounded-xl text-xs shadow-lg transition uppercase tracking-wider">
-                Se connecter
+            <!-- ADRESSE EMAIL (COMMUN) -->
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-700">Adresse E-mail <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <input type="email" id="email" required placeholder="prenom.nom@gmail.com" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-2 focus:ring-[#ff9900]">
+                </div>
+                <p id="email-hint" class="hidden text-[10px] text-gray-500">
+                    <i class="fa-solid fa-shield-halved text-emerald-600 mr-1"></i>Un lien de vérification sera envoyé à cette adresse pour activer votre compte.
+                </p>
+            </div>
+
+            <!-- MOT DE PASSE (COMMUN) -->
+            <div class="space-y-1">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-bold text-gray-700">Mot de passe <span class="text-red-500">*</span></label>
+                    <button type="button" id="forgot-pwd-btn" onclick="handlePasswordReset()" class="text-[11px] font-semibold text-[#007185] hover:underline">
+                        Mot de passe oublié ?
+                    </button>
+                </div>
+                <div class="relative">
+                    <input type="password" id="password" required minlength="6" placeholder="••••••••" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 pr-10 text-xs outline-none focus:ring-2 focus:ring-[#ff9900]">
+                    <button type="button" onclick="togglePasswordVisibility('password', 'eye-1')" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-700">
+                        <i id="eye-1" class="fa-regular fa-eye text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CONFIRMATION MOT DE PASSE (INSCRIPTION UNIQUEMENT) -->
+            <div id="confirm-pwd-group" class="hidden space-y-1">
+                <label class="text-xs font-bold text-gray-700">Confirmer le mot de passe <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <input type="password" id="confirm-password" minlength="6" placeholder="••••••••" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 pr-10 text-xs outline-none focus:ring-2 focus:ring-[#ff9900]">
+                    <button type="button" onclick="togglePasswordVisibility('confirm-password', 'eye-2')" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-700">
+                        <i id="eye-2" class="fa-regular fa-eye text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- BOUTON DE SOUMISSION -->
+            <button type="submit" id="submit-btn" class="w-full bg-[#ff9900] hover:bg-[#e88b00] text-[#131921] font-extrabold py-3 rounded-xl text-xs uppercase tracking-wider shadow-md transition flex items-center justify-center gap-2">
+                <span id="submit-btn-text">Se connecter</span>
             </button>
         </form>
 
-        <div class="text-center text-xs space-y-3">
-            <button onclick="toggleMode()" id="toggle-mode-btn" class="text-gray-600 hover:text-[#ff9900] font-semibold transition block w-full">
-                Pas encore de compte ? S'inscrire
-            </button>
+        <!-- Séparateur -->
+        <div class="relative flex items-center justify-center">
+            <div class="border-t border-gray-200 w-full"></div>
+            <span class="bg-white px-3 text-[11px] text-gray-400 font-medium">ou</span>
+            <div class="border-t border-gray-200 w-full"></div>
+        </div>
 
-            <!-- Bouton de Connexion Google -->
-            <div class="pt-3 border-t">
-                <button onclick="signInWithGoogle()" class="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-3 rounded-xl text-xs border border-gray-300 shadow-sm transition flex items-center justify-center gap-2">
-                    <i class="fa-brands fa-google text-red-500"></i> Continuer avec Google
-                </button>
-            </div>
+        <!-- Authentification Google OAuth -->
+        <button type="button" onclick="signInWithGoogle()" class="w-full bg-white hover:bg-gray-50 text-gray-800 font-bold py-2.5 px-4 rounded-xl border border-gray-300 shadow-sm transition flex items-center justify-center gap-2.5 text-xs">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-4 h-4">
+            <span>Continuer avec Google</span>
+        </button>
+
+        <!-- Lien retour catalogue -->
+        <div class="text-center pt-1">
+            <a href="index.html" class="text-xs text-gray-500 hover:text-gray-900 font-medium">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Retourner au catalogue sans se connecter
+            </a>
         </div>
     </div>
 
@@ -56,57 +148,261 @@
             SUPABASE_ANON_KEY: "sb_publishable_EQB1DluDwn4QT58HJt6hJg_Bw170zA1"
         };
         const supabaseClient = window.supabase.createClient(ENV.SUPABASE_URL, ENV.SUPABASE_ANON_KEY);
-        
-        let isSignUp = false;
 
-        function toggleMode() {
-            isSignUp = !isSignUp;
-            document.getElementById('form-title').innerText = isSignUp ? "Créer un compte Okazion" : "Connexion à votre compte";
-            document.getElementById('auth-submit-btn').innerText = isSignUp ? "S'inscrire" : "Se connecter";
-            document.getElementById('toggle-mode-btn').innerText = isSignUp ? "Déjà un compte ? Se connecter" : "Pas encore de compte ? S'inscrire";
-        }
+        let currentMode = 'login'; // 'login' ou 'signup'
 
-        async function handleAuth(event) {
-            event.preventDefault();
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            const btn = document.getElementById('auth-submit-btn');
+        // Liste noire des domaines d'e-mails temporaires / jetables
+        const blockedDisposableDomains = [
+            'yopmail.com', 'yopmail.fr', 'tempmail.com', 'temp-mail.org', '10minutemail.com',
+            'guerrillamail.com', 'mailinator.com', 'trashmail.com', 'throwawaymail.com',
+            'getnada.com', 'dispostable.com', 'fakeinbox.com', 'sharklasers.com', 'maildrop.cc'
+        ];
 
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Traitement...';
-
-            if (isSignUp) {
-                const { data, error } = await supabaseClient.auth.signUp({ email, password });
-                if (error) {
-                    alert("Erreur d'inscription : " + error.message);
-                } else {
-                    alert("Inscription réussie ! Vérifiez vos emails si nécessaire ou connectez-vous.");
-                    isSignUp = false;
-                    toggleMode();
-                }
-            } else {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) {
-                    alert("Erreur de connexion : " + error.message);
-                } else {
-                    alert("Connexion réussie ! Redirection...");
-                    window.location.href = 'profile.html';
-                }
+        // Vérifier si l'utilisateur est déjà connecté
+        window.onload = async () => {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                window.location.href = 'index.html';
             }
-            btn.disabled = false;
-            btn.innerText = isSignUp ? "S'inscrire" : "Se connecter";
+            // Vérifier si l'URL demande directement l'inscription (?mode=signup)
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('mode') === 'signup') {
+                setAuthMode('signup');
+            }
+        };
+
+        // Basculer entre Connexion et Création de compte
+        function setAuthMode(mode) {
+            currentMode = mode;
+            hideAlert();
+
+            const isSignup = mode === 'signup';
+            const signupFields = document.getElementById('signup-fields');
+            const confirmPwdGroup = document.getElementById('confirm-pwd-group');
+            const emailHint = document.getElementById('email-hint');
+            const forgotBtn = document.getElementById('forgot-pwd-btn');
+
+            const firstNameInput = document.getElementById('first-name');
+            const lastNameInput = document.getElementById('last-name');
+            const countrySelect = document.getElementById('country');
+            const confirmPwdInput = document.getElementById('confirm-password');
+
+            if (isSignup) {
+                document.getElementById('auth-title').innerText = "Créer un compte Okazion";
+                document.getElementById('auth-subtitle').innerText = "Renseignez votre identité pour acheter et vendre en toute confiance.";
+                document.getElementById('submit-btn-text').innerText = "Créer mon compte";
+
+                document.getElementById('tab-signup').className = "py-2 rounded-lg bg-white text-gray-900 shadow-sm transition";
+                document.getElementById('tab-login').className = "py-2 rounded-lg text-gray-500 hover:text-gray-900 transition";
+
+                signupFields.classList.remove('hidden');
+                confirmPwdGroup.classList.remove('hidden');
+                emailHint.classList.remove('hidden');
+                forgotBtn.classList.add('hidden');
+
+                firstNameInput.required = true;
+                lastNameInput.required = true;
+                countrySelect.required = true;
+                confirmPwdInput.required = true;
+            } else {
+                document.getElementById('auth-title').innerText = "Se connecter à Okazion";
+                document.getElementById('auth-subtitle').innerText = "Accédez à votre vitrine, vos messages et vos commandes.";
+                document.getElementById('submit-btn-text').innerText = "Se connecter";
+
+                document.getElementById('tab-login').className = "py-2 rounded-lg bg-white text-gray-900 shadow-sm transition";
+                document.getElementById('tab-signup').className = "py-2 rounded-lg text-gray-500 hover:text-gray-900 transition";
+
+                signupFields.classList.add('hidden');
+                confirmPwdGroup.classList.add('hidden');
+                emailHint.classList.add('hidden');
+                forgotBtn.classList.remove('hidden');
+
+                firstNameInput.required = false;
+                lastNameInput.required = false;
+                countrySelect.required = false;
+                confirmPwdInput.required = false;
+            }
         }
 
+        // Validation stricte de l'e-mail (anti-fantaisie / anti-jetable)
+        function isEmailValidAndReal(email) {
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                return { valid: false, reason: "Le format de l'adresse e-mail est invalide." };
+            }
+            const domain = email.split('@')[1].toLowerCase();
+            if (blockedDisposableDomains.includes(domain)) {
+                return { valid: false, reason: "Les adresses e-mail temporaires ou jetables sont interdites. Utilisez une vraie adresse (Gmail, Outlook, Yahoo, etc.)." };
+            }
+            return { valid: true };
+        }
+
+        // Traitement du formulaire
+        async function handleAuthSubmit(event) {
+            event.preventDefault();
+            hideAlert();
+
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            const submitBtn = document.getElementById('submit-btn');
+            const submitText = document.getElementById('submit-btn-text');
+
+            const emailCheck = isEmailValidAndReal(email);
+            if (!emailCheck.valid) {
+                showAlert(emailCheck.reason, 'error');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            const originalLabel = submitText.innerText;
+            submitText.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i>Traitement en cours...`;
+
+            if (currentMode === 'signup') {
+                const firstName = document.getElementById('first-name').value.trim();
+                const lastName = document.getElementById('last-name').value.trim();
+                const country = document.getElementById('country').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+
+                if (firstName.length < 2 || lastName.length < 2) {
+                    showAlert("Veuillez saisir votre vrai prénom et votre vrai nom.", 'error');
+                    resetButton(submitBtn, submitText, originalLabel);
+                    return;
+                }
+
+                if (!country) {
+                    showAlert("Veuillez sélectionner votre pays de résidence.", 'error');
+                    resetButton(submitBtn, submitText, originalLabel);
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    showAlert("Les deux mots de passe ne correspondent pas.", 'error');
+                    resetButton(submitBtn, submitText, originalLabel);
+                    return;
+                }
+
+                // Inscription Supabase avec envoi d'e-mail de confirmation obligatoire
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        emailRedirectTo: `${window.location.origin}/auth.html`,
+                        data: {
+                            first_name: firstName,
+                            last_name: lastName,
+                            full_name: `${firstName} ${lastName}`,
+                            country: country
+                        }
+                    }
+                });
+
+                resetButton(submitBtn, submitText, originalLabel);
+
+                if (error) {
+                    showAlert(`Erreur d'inscription : ${error.message}`, 'error');
+                    return;
+                }
+
+                // Si la confirmation d'e-mail est activée sur Supabase, session est null jusqu'au clic sur le lien
+                if (data.user && !data.session) {
+                    document.getElementById('auth-form').reset();
+                    showAlert(
+                        `<strong>Compte créé pour ${firstName} ${lastName} !</strong><br>Un e-mail d'authentification vient d'être envoyé à <b>${email}</b>. Cliquez sur le lien reçu dans votre boîte mail (vérifiez aussi vos spams) pour activer votre compte avant de vous connecter.`,
+                        'success'
+                    );
+                } else if (data.session) {
+                    window.location.href = 'index.html';
+                }
+
+            } else {
+                // Mode Connexion
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                resetButton(submitBtn, submitText, originalLabel);
+
+                if (error) {
+                    if (error.message.toLowerCase().includes('email not confirmed')) {
+                        showAlert(
+                            `Votre adresse e-mail <b>${email}</b> n'est pas encore vérifiée. Ouvrez votre boîte mail et cliquez sur le lien de confirmation envoyé par Okazion.`,
+                            'warning'
+                        );
+                    } else {
+                        showAlert("E-mail ou mot de passe incorrect.", 'error');
+                    }
+                    return;
+                }
+
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Connexion & Inscription directe avec Google (Compte Google authentifié)
         async function signInWithGoogle() {
-            const { data, error } = await supabaseClient.auth.signInWithOAuth({
+            const { error } = await supabaseClient.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: window.location.origin + '/profile.html'
+                    redirectTo: `${window.location.origin}/index.html`
                 }
             });
             if (error) {
-                alert("Erreur de connexion Google : " + error.message);
+                showAlert(`Erreur Google : ${error.message}`, 'error');
             }
+        }
+
+        // Réinitialisation du mot de passe
+        async function handlePasswordReset() {
+            const email = document.getElementById('email').value.trim();
+            if (!email) {
+                showAlert("Saisissez d'abord votre adresse e-mail ci-dessus, puis cliquez sur « Mot de passe oublié ? ».", 'warning');
+                return;
+            }
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/auth.html`
+            });
+            if (error) {
+                showAlert(error.message, 'error');
+            } else {
+                showAlert(`Un lien de réinitialisation de mot de passe a été envoyé à <b>${email}</b>.`, 'success');
+            }
+        }
+
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        function showAlert(htmlMsg, type) {
+            const box = document.getElementById('auth-alert');
+            box.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'border-red-200', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-amber-50', 'text-amber-800', 'border-amber-200');
+            box.classList.add('border');
+
+            if (type === 'error') {
+                box.classList.add('bg-red-50', 'text-red-700', 'border-red-200');
+            } else if (type === 'success') {
+                box.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+            } else {
+                box.classList.add('bg-amber-50', 'text-amber-800', 'border-amber-200');
+            }
+            box.innerHTML = htmlMsg;
+        }
+
+        function hideAlert() {
+            document.getElementById('auth-alert').classList.add('hidden');
+        }
+
+        function resetButton(btn, textEl, label) {
+            btn.disabled = false;
+            textEl.innerText = label;
         }
     </script>
 </body>
